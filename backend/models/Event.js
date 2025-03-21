@@ -8,6 +8,11 @@ const eventSchema = new mongoose.Schema({
     location: { type: String, required: true },
     description: { type: String },
     image: { type: String },
+    status: {
+        type: String,
+        enum: ['Đang chờ', 'Đã phê duyệt', 'Hủy'],
+        default: 'Đang chờ'
+    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

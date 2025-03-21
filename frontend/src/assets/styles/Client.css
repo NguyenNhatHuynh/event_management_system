@@ -1286,3 +1286,135 @@ body {
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
 }
+
+
+
+
+
+
+/* frontend/src/assets/styles/Client.css */
+.event-types-page,
+.portfolio-page {
+    background-color: #f8f9fa;
+}
+
+.event-types-hero,
+.portfolio-hero {
+    position: relative;
+    Index: 0;
+}
+
+.event-type-card,
+.event-card,
+.portfolio-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-type-card:hover,
+.event-card:hover,
+.portfolio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.event-card-image-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.event-card-image {
+    transition: transform 0.3s ease;
+}
+
+.event-card-image:hover {
+    transform: scale(1.1);
+}
+
+.event-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.event-card-image-wrapper:hover .event-card-overlay {
+    opacity: 1;
+}
+
+.view-details-btn {
+    border-radius: 20px;
+    padding: 8px 20px;
+}
+
+.event-card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.event-card-description {
+    color: #6c757d;
+}
+
+
+
+
+
+
+
+
+
+
+.portfolio-page {
+    background-color: #f8f9fa;
+}
+
+.portfolio-hero {
+    background-color: #e9ecef;
+}
+
+.portfolio-card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.portfolio-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Đặt kích thước cố định cho hình ảnh */
+.portfolio-card-img {
+    width: 100%;
+    height: 200px;
+    /* Chiều cao cố định cho hình ảnh */
+    object-fit: cover;
+    /* Đảm bảo hình ảnh không bị méo, cắt phần thừa */
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+/* Đảm bảo nội dung trong card căn chỉnh đồng đều */
+.portfolio-card .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Đảm bảo các card có chiều cao đồng đều */
+.portfolio-card {
+    min-height: 450px;
+    /* Chiều cao tối thiểu cho card */
+}
+
+/* Đảm bảo nút "Xem chi tiết" luôn ở dưới cùng */
+.portfolio-card .card-body .mt-auto {
+    margin-top: auto;
+}

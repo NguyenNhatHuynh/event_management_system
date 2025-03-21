@@ -1,4 +1,3 @@
-// frontend/src/pages/client/Portfolio.js
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
@@ -7,32 +6,36 @@ import '../../assets/styles/Client.css';
 
 function Portfolio() {
     const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(false);
     const location = useLocation();
 
-    // Lấy typeCode từ query string
     const queryParams = new URLSearchParams(location.search);
     const typeCode = queryParams.get('type');
 
-    useEffect(() => {
-        const fetchEvents = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/api/events/public');
-                let filteredEvents = response.data;
+    const fetchEvents = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get('/api/events/public');
+            console.log('Public events data:', response.data);
+            let filteredEvents = response.data;
 
-                // Lọc sự kiện theo typeCode nếu có
-                if (typeCode) {
-                    filteredEvents = filteredEvents.filter(
-                        (event) => event.eventType?.typeCode === typeCode
-                    );
-                }
-
-                setEvents(filteredEvents);
-            } catch (error) {
-                console.error('Lỗi khi lấy danh sách sự kiện:', error);
+            if (typeCode) {
+                filteredEvents = filteredEvents.filter(
+                    (event) => event.eventType?.typeCode === typeCode
+                );
             }
-        };
+
+            setEvents(filteredEvents);
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách sự kiện:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchEvents();
-    }, [typeCode]); // Thêm typeCode vào dependency để re-fetch khi query thay đổi
+    }, [typeCode]);
 
     return (
         <div className="portfolio-page">
@@ -44,26 +47,38 @@ function Portfolio() {
                             ? `Các sự kiện thuộc loại: ${events[0]?.eventType?.name || typeCode}`
                             : 'Khám phá các sự kiện nổi bật mà chúng tôi đã tổ chức'}
                     </p>
+                    <Button variant="outline-primary" onClick={fetchEvents}>
+                        {loading ? 'Đang tải...' : 'Làm mới'}
+                    </Button>
                 </Container>
             </section>
 
             <section className="portfolio-content py-5">
                 <Container>
                     <Row>
-                        {events.length > 0 ? (
+                        {loading ? (
+                            <Col>
+                                <p className="text-center">Đang tải...</p>
+                            </Col>
+                        ) : events.length > 0 ? (
                             events.map((event) => (
                                 <Col md={4} key={event._id} className="mb-4">
-                                    <Card className="portfolio-card shadow-sm">
+                                    <Card className="portfolio-card shadow-sm h-100 d-flex flex-column">
                                         <Card.Img
                                             variant="top"
                                             src={
                                                 event.image
-                                                    ? `http://localhost:5000${event.image}`
-                                                    : 'https://via.placeholder.com/300x200'
+                                                    ? event.image
+                                                    : '/images/placeholder.jpg'
                                             }
                                             alt={event.name}
+                                            className="portfolio-card-img"
+                                            onError={(e) => {
+                                                console.error('Error loading image:', event.image);
+                                                e.target.src = '/images/error.jpg';
+                                            }}
                                         />
-                                        <Card.Body>
+                                        <Card.Body className="d-flex flex-column">
                                             <Card.Title>{event.name}</Card.Title>
                                             <Card.Text>
                                                 <strong>Loại sự kiện:</strong>{' '}
@@ -76,12 +91,12 @@ function Portfolio() {
                                             <Card.Text>
                                                 <strong>Địa điểm:</strong> {event.location}
                                             </Card.Text>
-                                            <Card.Text>
+                                            <Card.Text className="flex-grow-1">
                                                 {event.description
                                                     ? event.description.substring(0, 100) + '...'
                                                     : 'Không có mô tả'}
                                             </Card.Text>
-                                            <Link to={`/portfolio/${event._id}`}>
+                                            <Link to={`/portfolio/${event._id}`} className="mt-auto">
                                                 <Button variant="primary">Xem chi tiết</Button>
                                             </Link>
                                         </Card.Body>

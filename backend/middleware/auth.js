@@ -18,7 +18,7 @@ const auth = (req, res, next) => {
 
 const adminOnly = (req, res, next) => {
     if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Chỉ admin mới có quyền truy cập' });
+        return res.status(403).json({ message: 'Truy cập bị từ chối, chỉ dành cho admin' });
     }
     next();
 };

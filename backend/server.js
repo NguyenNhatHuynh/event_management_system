@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
 const { auth, adminOnly } = require('./middleware/auth');
+const path = require('path');
 
 // Load biến môi trường từ file .env
 dotenv.config();
@@ -16,7 +17,7 @@ const app = express();
 
 // Kết nối tới database
 connectDB().catch((error) => {
-    console.error('Failed to connect to MongoDB:', error.message);
+    console.error('Failed to connect to MongoDB:', error);
     process.exit(1);
 });
 
@@ -29,12 +30,14 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(helmet());
 
+// Phục vụ file tĩnh (hình ảnh trong thư mục uploads)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Logging
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 } else {
     const fs = require('fs');
-    const path = require('path');
     const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
     app.use(morgan('combined', { stream: accessLogStream }));
 }
@@ -65,7 +68,7 @@ const authRoutes = require('./routes/authRoutes');
 
 // Route công khai
 app.use('/api/events/public', eventRoutes);
-app.use('/api/event-types/public', eventTypeRoutes); // Thêm route công khai cho loại sự kiện
+app.use('/api/event-types/public', eventTypeRoutes);
 
 // Các route admin được bảo vệ bằng middleware auth và adminOnly
 app.use('/api/customers', auth, adminOnly, customerRoutes);

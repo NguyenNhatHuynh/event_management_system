@@ -1,6 +1,6 @@
 // frontend/src/pages/client/EventTypes.js
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button, Form, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../../assets/styles/Client.css';
@@ -12,35 +12,39 @@ function EventTypes() {
     const [filteredEvents, setFilteredEvents] = useState([]);
     const [filterDate, setFilterDate] = useState('');
     const [filterLocation, setFilterLocation] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchEventTypes = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/api/event-types/public');
-                setEventTypes(response.data);
-            } catch (error) {
-                console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
-            }
-        };
-        fetchEventTypes();
-    }, []);
-
-    useEffect(() => {
-        if (typeCode) {
-            const fetchEvents = async () => {
-                try {
-                    const response = await axios.get('http://localhost:5000/api/events/public');
-                    const filteredEvents = response.data.filter(
-                        (event) => event.eventType?.typeCode === typeCode
-                    );
-                    setEvents(filteredEvents);
-                    setFilteredEvents(filteredEvents);
-                } catch (error) {
-                    console.error('Lỗi khi lấy danh sách sự kiện:', error);
-                }
-            };
-            fetchEvents();
+    const fetchEventTypes = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/event-types/public');
+            setEventTypes(response.data);
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
         }
+    };
+
+    const fetchEvents = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get('http://localhost:5000/api/events/public');
+            let filteredEvents = response.data;
+            if (typeCode) {
+                filteredEvents = filteredEvents.filter(
+                    (event) => event.eventType?.typeCode === typeCode
+                );
+            }
+            setEvents(filteredEvents);
+            setFilteredEvents(filteredEvents);
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách sự kiện:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEventTypes();
+        fetchEvents();
     }, [typeCode]);
 
     useEffect(() => {
@@ -62,13 +66,10 @@ function EventTypes() {
 
     return (
         <div className="event-types-page">
-            {/* Hero Section */}
             <section
                 className="event-types-hero text-center py-5"
                 style={{
-                    background: selectedType?.image
-                        ? `url(http://localhost:5000${selectedType.image}) no-repeat center center`
-                        : 'linear-gradient(135deg, #007bff, #00c4b4)',
+                    background: 'linear-gradient(135deg, #007bff, #00c4b4)',
                     backgroundSize: 'cover',
                     color: '#fff',
                     position: 'relative',
@@ -99,12 +100,10 @@ function EventTypes() {
                 />
             </section>
 
-            {/* Content Section */}
             <section className="event-types-content py-5">
                 <Container>
                     {typeCode ? (
                         <>
-                            {/* Bộ lọc */}
                             <Row className="mb-4">
                                 <Col md={6}>
                                     <Form.Group>
@@ -116,7 +115,7 @@ function EventTypes() {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={4}>
                                     <Form.Group>
                                         <Form.Label>Lọc theo địa điểm</Form.Label>
                                         <Form.Control
@@ -127,11 +126,19 @@ function EventTypes() {
                                         />
                                     </Form.Group>
                                 </Col>
+                                <Col md={2} className="d-flex align-items-end">
+                                    <Button variant="outline-primary" onClick={fetchEvents}>
+                                        {loading ? 'Đang tải...' : 'Làm mới'}
+                                    </Button>
+                                </Col>
                             </Row>
 
-                            {/* Danh sách sự kiện */}
                             <Row>
-                                {filteredEvents.length > 0 ? (
+                                {loading ? (
+                                    <Col>
+                                        <p className="text-center">Đang tải...</p>
+                                    </Col>
+                                ) : filteredEvents.length > 0 ? (
                                     filteredEvents.map((event) => (
                                         <Col md={4} key={event._id} className="mb-4">
                                             <Card className="event-card shadow-sm animate__animated animate__fadeIn">
@@ -184,22 +191,11 @@ function EventTypes() {
                             </Row>
                         </>
                     ) : (
-                        // Hiển thị danh sách loại sự kiện
                         <Row>
                             {eventTypes.length > 0 ? (
                                 eventTypes.map((type) => (
                                     <Col md={4} key={type._id} className="mb-4">
                                         <Card className="event-type-card shadow-sm animate__animated animate__fadeIn">
-                                            <Card.Img
-                                                variant="top"
-                                                src={
-                                                    type.image
-                                                        ? `http://localhost:5000${type.image}`
-                                                        : 'https://via.placeholder.com/300x200'
-                                                }
-                                                alt={type.name}
-                                                style={{ height: '200px', objectFit: 'cover' }}
-                                            />
                                             <Card.Body>
                                                 <Card.Title>{type.name}</Card.Title>
                                                 <Card.Text>
