@@ -2,12 +2,12 @@
 const mongoose = require('mongoose');
 
 const eventSchema = new mongoose.Schema({
-    eventCode: { type: String, required: true, unique: true },
     name: { type: String, required: true },
+    eventType: { type: mongoose.Schema.Types.ObjectId, ref: 'EventType', required: true },
     date: { type: Date, required: true },
     location: { type: String, required: true },
     description: { type: String },
-    image: { type: String }, // Thêm trường image để lưu đường dẫn hình ảnh
+    image: { type: String },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

@@ -1,151 +1,231 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, ListGroup, Card, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+// frontend/src/pages/client/EventTypes.js
+import React, { useEffect, useState } from 'react';
+import { Container, Row, Col, Card, Button, Form, Dropdown } from 'react-bootstrap';
+import { useParams, Link } from 'react-router-dom';
+import axios from 'axios';
 import '../../assets/styles/Client.css';
 
-// Import hình ảnh từ thư mục src/assets/images (nếu có)
-import EventImage1 from '../../assets/images/hero-event.png';
-
 function EventTypes() {
-    // Dữ liệu mẫu cho các loại sự kiện và sự kiện
-    const eventCategories = [
-        { id: 1, name: 'Tổ chức Road Show' },
-        { id: 2, name: 'Tổ chức Biểu diễn Nghệ thuật' },
-        { id: 3, name: 'Tổ chức Khai trương - Khánh thành' },
-        { id: 4, name: 'Tổ chức Lễ ra mắt' },
-    ];
+    const { typeCode } = useParams();
+    const [eventTypes, setEventTypes] = useState([]);
+    const [events, setEvents] = useState([]);
+    const [filteredEvents, setFilteredEvents] = useState([]);
+    const [filterDate, setFilterDate] = useState('');
+    const [filterLocation, setFilterLocation] = useState('');
 
-    const eventsData = [
-        {
-            id: 1,
-            categoryId: 1,
-            title: 'Tổ chức Road Show',
-            description:
-                'Chắc chắn bạn đã từng ít nhất một lần nhìn thấy những nhóm người mặc đồng phục, di chuyển trên các phương tiện như xe máy...',
-            date: '21/03/2025',
-            image: EventImage1,
-        },
-        {
-            id: 2,
-            categoryId: 2,
-            title: 'Tổ chức Biểu diễn Nghệ thuật',
-            description:
-                'Tổ chức chương trình sự kiện biểu diễn nghệ thuật vừa mang đặc điểm nghệ thuật, vừa mang tính giải trí...',
-            date: '21/03/2025',
-            image: EventImage1,
-        },
-        {
-            id: 3,
-            categoryId: 3,
-            title: 'Tổ chức Khai trương - Khánh thành',
-            description:
-                'Tổ chức sự kiện lễ khai trương, khánh thành là một trong những dấu mốc quan trọng của doanh nghiệp...',
-            date: '21/03/2025',
-            image: EventImage1,
-        },
-        {
-            id: 4,
-            categoryId: 4,
-            title: 'Tổ chức Lễ ra mắt',
-            description:
-                'Tổ chức sự kiện lễ ra mắt sản phẩm mới là một trong những sự kiện quan trọng để quảng bá thương hiệu...',
-            date: '21/03/2025',
-            image: EventImage1,
-        },
-    ];
+    useEffect(() => {
+        const fetchEventTypes = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/event-types/public');
+                setEventTypes(response.data);
+            } catch (error) {
+                console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
+            }
+        };
+        fetchEventTypes();
+    }, []);
 
-    // State để theo dõi loại sự kiện được chọn
-    const [selectedCategory, setSelectedCategory] = useState(eventCategories[0].id);
+    useEffect(() => {
+        if (typeCode) {
+            const fetchEvents = async () => {
+                try {
+                    const response = await axios.get('http://localhost:5000/api/events/public');
+                    const filteredEvents = response.data.filter(
+                        (event) => event.eventType?.typeCode === typeCode
+                    );
+                    setEvents(filteredEvents);
+                    setFilteredEvents(filteredEvents);
+                } catch (error) {
+                    console.error('Lỗi khi lấy danh sách sự kiện:', error);
+                }
+            };
+            fetchEvents();
+        }
+    }, [typeCode]);
 
-    // Lọc các sự kiện theo loại đã chọn
-    const filteredEvents = eventsData.filter(
-        (event) => event.categoryId === selectedCategory
-    );
+    useEffect(() => {
+        let filtered = events;
+        if (filterDate) {
+            filtered = filtered.filter((event) =>
+                new Date(event.date).toISOString().split('T')[0] === filterDate
+            );
+        }
+        if (filterLocation) {
+            filtered = filtered.filter((event) =>
+                event.location.toLowerCase().includes(filterLocation.toLowerCase())
+            );
+        }
+        setFilteredEvents(filtered);
+    }, [filterDate, filterLocation, events]);
+
+    const selectedType = eventTypes.find((type) => type.typeCode === typeCode);
 
     return (
-        <div>
-            {/* Header Section */}
-            <section className="event-types-header-section">
-                <Container className="text-center">
-                    <h1>CÁC LOẠI SỰ KIỆN</h1>
+        <div className="event-types-page">
+            {/* Hero Section */}
+            <section
+                className="event-types-hero text-center py-5"
+                style={{
+                    background: selectedType?.image
+                        ? `url(http://localhost:5000${selectedType.image}) no-repeat center center`
+                        : 'linear-gradient(135deg, #007bff, #00c4b4)',
+                    backgroundSize: 'cover',
+                    color: '#fff',
+                    position: 'relative',
+                    overflow: 'hidden',
+                }}
+            >
+                <Container>
+                    <h1 className="display-4 animate__animated animate__fadeInDown">
+                        {typeCode ? (selectedType?.name || typeCode) : 'Các loại sự kiện'}
+                    </h1>
+                    <p className="lead animate__animated animate__fadeInUp">
+                        {typeCode
+                            ? selectedType?.description || 'Khám phá các sự kiện thuộc loại này'
+                            : 'Khám phá các loại sự kiện mà chúng tôi tổ chức'}
+                    </p>
                 </Container>
+                <div
+                    className="hero-overlay"
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'rgba(0, 0, 0, 0.4)',
+                        zIndex: 1,
+                    }}
+                />
             </section>
 
-            {/* Categories and Events Section */}
-            <section className="event-types-section">
+            {/* Content Section */}
+            <section className="event-types-content py-5">
                 <Container>
-                    <Row>
-                        {/* Sidebar: Danh sách loại sự kiện */}
-                        <Col md={3}>
-                            <h4 className="mb-4">CÁC LOẠI SỰ KIỆN</h4>
-                            <ListGroup>
-                                {eventCategories.map((category) => (
-                                    <ListGroup.Item
-                                        key={category.id}
-                                        active={selectedCategory === category.id}
-                                        onClick={() => setSelectedCategory(category.id)}
-                                        className="event-category-item"
-                                    >
-                                        {category.name}
-                                    </ListGroup.Item>
-                                ))}
-                            </ListGroup>
-                        </Col>
+                    {typeCode ? (
+                        <>
+                            {/* Bộ lọc */}
+                            <Row className="mb-4">
+                                <Col md={6}>
+                                    <Form.Group>
+                                        <Form.Label>Lọc theo ngày</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            value={filterDate}
+                                            onChange={(e) => setFilterDate(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group>
+                                        <Form.Label>Lọc theo địa điểm</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập địa điểm..."
+                                            value={filterLocation}
+                                            onChange={(e) => setFilterLocation(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
 
-                        {/* Danh sách sự kiện */}
-                        <Col md={9}>
-                            <h4 className="mb-4">
-                                {eventCategories.find((cat) => cat.id === selectedCategory)?.name}
-                            </h4>
-                            {filteredEvents.length > 0 ? (
-                                filteredEvents.map((event) => (
-                                    <Card key={event.id} className="event-item mb-4">
-                                        <Row className="no-gutters">
-                                            <Col md={4}>
-                                                <Card.Img
-                                                    src={event.image || 'https://via.placeholder.com/200x150'}
-                                                    alt={event.title}
-                                                    className="event-image"
-                                                />
-                                            </Col>
-                                            <Col md={8}>
+                            {/* Danh sách sự kiện */}
+                            <Row>
+                                {filteredEvents.length > 0 ? (
+                                    filteredEvents.map((event) => (
+                                        <Col md={4} key={event._id} className="mb-4">
+                                            <Card className="event-card shadow-sm animate__animated animate__fadeIn">
+                                                <div className="event-card-image-wrapper">
+                                                    <Card.Img
+                                                        variant="top"
+                                                        src={
+                                                            event.image
+                                                                ? `http://localhost:5000${event.image}`
+                                                                : 'https://via.placeholder.com/300x200'
+                                                        }
+                                                        alt={event.name}
+                                                        className="event-card-image"
+                                                    />
+                                                    <div className="event-card-overlay">
+                                                        <Link to={`/portfolio/${event._id}`}>
+                                                            <Button variant="light" className="view-details-btn">
+                                                                Xem chi tiết
+                                                            </Button>
+                                                        </Link>
+                                                    </div>
+                                                </div>
                                                 <Card.Body>
-                                                    <Card.Title>{event.title}</Card.Title>
-                                                    <Card.Text className="text-muted">{event.date}</Card.Text>
-                                                    <Card.Text>{event.description}</Card.Text>
-                                                    <Button
-                                                        as={Link}
-                                                        to={`/event/${event.id}`}
-                                                        className="event-read-more-button"
-                                                    >
-                                                        Xem chi tiết
-                                                    </Button>
+                                                    <Card.Title className="event-card-title">
+                                                        {event.name}
+                                                    </Card.Title>
+                                                    <Card.Text>
+                                                        <strong>Ngày:</strong>{' '}
+                                                        {new Date(event.date).toLocaleDateString('vi-VN')}
+                                                    </Card.Text>
+                                                    <Card.Text>
+                                                        <strong>Địa điểm:</strong> {event.location}
+                                                    </Card.Text>
+                                                    <Card.Text className="event-card-description">
+                                                        {event.description
+                                                            ? event.description.substring(0, 100) + '...'
+                                                            : 'Không có mô tả'}
+                                                    </Card.Text>
                                                 </Card.Body>
-                                            </Col>
-                                        </Row>
-                                    </Card>
+                                            </Card>
+                                        </Col>
+                                    ))
+                                ) : (
+                                    <Col>
+                                        <p className="text-center">
+                                            Không có sự kiện nào thuộc loại này hoặc khớp với bộ lọc.
+                                        </p>
+                                    </Col>
+                                )}
+                            </Row>
+                        </>
+                    ) : (
+                        // Hiển thị danh sách loại sự kiện
+                        <Row>
+                            {eventTypes.length > 0 ? (
+                                eventTypes.map((type) => (
+                                    <Col md={4} key={type._id} className="mb-4">
+                                        <Card className="event-type-card shadow-sm animate__animated animate__fadeIn">
+                                            <Card.Img
+                                                variant="top"
+                                                src={
+                                                    type.image
+                                                        ? `http://localhost:5000${type.image}`
+                                                        : 'https://via.placeholder.com/300x200'
+                                                }
+                                                alt={type.name}
+                                                style={{ height: '200px', objectFit: 'cover' }}
+                                            />
+                                            <Card.Body>
+                                                <Card.Title>{type.name}</Card.Title>
+                                                <Card.Text>
+                                                    <strong>Mã loại:</strong> {type.typeCode}
+                                                </Card.Text>
+                                                <Card.Text>
+                                                    {type.description
+                                                        ? type.description
+                                                        : 'Không có mô tả'}
+                                                </Card.Text>
+                                                <Link to={`/event-types/${type.typeCode}`}>
+                                                    <Button variant="primary">Xem sự kiện</Button>
+                                                </Link>
+                                            </Card.Body>
+                                        </Card>
+                                    </Col>
                                 ))
                             ) : (
-                                <p>Chưa có sự kiện nào trong danh mục này.</p>
+                                <Col>
+                                    <p className="text-center">
+                                        Hiện tại chưa có loại sự kiện nào.
+                                    </p>
+                                </Col>
                             )}
-                        </Col>
-                    </Row>
-                </Container>
-            </section>
-
-            {/* Call to Action Section */}
-            <section className="cta-section">
-                <Container className="text-center">
-                    <h2>BẠN MUỐN TỔ CHỨC SỰ KIỆN?</h2>
-                    <Button
-                        variant="light"
-                        size="lg"
-                        as={Link}
-                        to="/contact"
-                        className="mt-3 cta-button"
-                    >
-                        Liên hệ ngay
-                    </Button>
+                        </Row>
+                    )}
                 </Container>
             </section>
         </div>

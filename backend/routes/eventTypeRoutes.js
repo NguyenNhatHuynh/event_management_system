@@ -2,6 +2,36 @@
 const express = require('express');
 const router = express.Router();
 const EventType = require('../models/EventType');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Cấu hình multer
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    },
+});
+
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        const filetypes = /jpeg|jpg|png/;
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = filetypes.test(file.mimetype);
+        if (extname && mimetype) {
+            return cb(null, true);
+        } else {
+            cb('Chỉ chấp nhận file ảnh (jpeg, jpg, png)!');
+        }
+    },
+    limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+router.use('/uploads', express.static('uploads'));
 
 // Lấy danh sách loại sự kiện (công khai)
 router.get('/public', async (req, res) => {
@@ -24,7 +54,7 @@ router.get('/', async (req, res) => {
 });
 
 // Thêm loại sự kiện mới
-router.post('/', async (req, res) => {
+router.post('/', upload.single('image'), async (req, res) => {
     const { typeCode, name, description } = req.body;
     try {
         const existingEventType = await EventType.findOne({ typeCode });
@@ -36,6 +66,7 @@ router.post('/', async (req, res) => {
             typeCode,
             name,
             description,
+            image: req.file ? `/uploads/${req.file.filename}` : null,
         });
 
         const newEventType = await eventType.save();
@@ -46,7 +77,7 @@ router.post('/', async (req, res) => {
 });
 
 // Cập nhật loại sự kiện
-router.put('/:id', async (req, res) => {
+router.put('/:id', upload.single('image'), async (req, res) => {
     const { id } = req.params;
     const { typeCode, name, description } = req.body;
 
@@ -64,6 +95,15 @@ router.put('/:id', async (req, res) => {
         eventType.typeCode = typeCode;
         eventType.name = name;
         eventType.description = description;
+        if (req.file) {
+            if (eventType.image) {
+                const oldImagePath = path.join(__dirname, '..', eventType.image);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+            eventType.image = `/uploads/${req.file.filename}`;
+        }
 
         const updatedEventType = await eventType.save();
         res.json(updatedEventType);
@@ -79,6 +119,13 @@ router.delete('/:id', async (req, res) => {
         const eventType = await EventType.findById(id);
         if (!eventType) {
             return res.status(404).json({ message: 'Loại sự kiện không tồn tại' });
+        }
+
+        if (eventType.image) {
+            const imagePath = path.join(__dirname, '..', eventType.image);
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
         }
 
         await eventType.deleteOne();

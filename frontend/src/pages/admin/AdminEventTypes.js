@@ -12,6 +12,7 @@ function AdminEventTypes() {
         typeCode: '',
         name: '',
         description: '',
+        image: null,
     });
     const [editFormData, setEditFormData] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -41,15 +42,24 @@ function AdminEventTypes() {
         e.preventDefault();
         setError('');
         try {
-            const response = await axios.post('http://localhost:5000/api/event-types', formData, {
+            const data = new FormData();
+            data.append('typeCode', formData.typeCode);
+            data.append('name', formData.name);
+            data.append('description', formData.description);
+            if (formData.image) {
+                data.append('image', formData.image);
+            }
+
+            const response = await axios.post('http://localhost:5000/api/event-types', data, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'multipart/form-data',
                 },
             });
             setEventTypes([...eventTypes, response.data]);
-            setFormData({ typeCode: '', name: '', description: '' });
+            setFormData({ typeCode: '', name: '', description: '', image: null });
             toast.success('Thêm loại sự kiện thành công!');
-            fetchEventTypes(); // Làm mới danh sách từ database
+            fetchEventTypes();
         } catch (error) {
             console.error('Lỗi khi thêm loại sự kiện:', error);
             setError(error.response?.data?.message || 'Thêm loại sự kiện thất bại');
@@ -68,12 +78,21 @@ function AdminEventTypes() {
         e.preventDefault();
         setError('');
         try {
+            const data = new FormData();
+            data.append('typeCode', editFormData.typeCode);
+            data.append('name', editFormData.name);
+            data.append('description', editFormData.description);
+            if (editFormData.image && typeof editFormData.image !== 'string') {
+                data.append('image', editFormData.image);
+            }
+
             const response = await axios.put(
                 `http://localhost:5000/api/event-types/${editFormData._id}`,
-                editFormData,
+                data,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'multipart/form-data',
                     },
                 }
             );
@@ -82,7 +101,7 @@ function AdminEventTypes() {
             );
             setShowModal(false);
             toast.success('Cập nhật loại sự kiện thành công!');
-            fetchEventTypes(); // Làm mới danh sách từ database
+            fetchEventTypes();
         } catch (error) {
             console.error('Lỗi khi cập nhật loại sự kiện:', error);
             setError(error.response?.data?.message || 'Cập nhật loại sự kiện thất bại');
@@ -101,7 +120,7 @@ function AdminEventTypes() {
                 });
                 setEventTypes(eventTypes.filter((type) => type._id !== id));
                 toast.success('Xóa loại sự kiện thành công!');
-                fetchEventTypes(); // Làm mới danh sách từ database
+                fetchEventTypes();
             } catch (error) {
                 console.error('Lỗi khi xóa loại sự kiện:', error);
                 toast.error(error.response?.data?.message || 'Xóa loại sự kiện thất bại');
@@ -113,22 +132,6 @@ function AdminEventTypes() {
         <Container fluid className="admin-container">
             <ToastContainer />
             <Row>
-                <Col md={3} className="admin-sidebar">
-                    <Nav className="flex-column">
-                        <Nav.Link as="a" href="/admin/dashboard">
-                            Dashboard
-                        </Nav.Link>
-                        <Nav.Link as="a" href="/admin/users">
-                            Customer Management
-                        </Nav.Link>
-                        <Nav.Link as="a" href="/admin/events">
-                            Quản lý sự kiện
-                        </Nav.Link>
-                        <Nav.Link as="a" href="/admin/event-types">
-                            Quản lý loại sự kiện
-                        </Nav.Link>
-                    </Nav>
-                </Col>
                 <Col md={9}>
                     <h1 className="mb-4">Quản lý loại sự kiện</h1>
                     <Card className="admin-card mb-4">
@@ -140,7 +143,7 @@ function AdminEventTypes() {
                             )}
                             <Form onSubmit={handleSubmit}>
                                 <Row>
-                                    <Col md={3}>
+                                    <Col md={2}>
                                         <Form.Group>
                                             <Form.Control
                                                 type="text"
@@ -166,7 +169,7 @@ function AdminEventTypes() {
                                             />
                                         </Form.Group>
                                     </Col>
-                                    <Col md={4}>
+                                    <Col md={3}>
                                         <Form.Group>
                                             <Form.Control
                                                 type="text"
@@ -174,6 +177,18 @@ function AdminEventTypes() {
                                                 value={formData.description}
                                                 onChange={(e) =>
                                                     setFormData({ ...formData, description: e.target.value })
+                                                }
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={2}>
+                                        <Form.Group>
+                                            <Form.Label>Hình ảnh</Form.Label>
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, image: e.target.files[0] })
                                                 }
                                             />
                                         </Form.Group>
@@ -195,6 +210,7 @@ function AdminEventTypes() {
                                         <th>Mã loại sự kiện</th>
                                         <th>Tên loại sự kiện</th>
                                         <th>Mô tả</th>
+                                        <th>Hình ảnh</th>
                                         <th>Hành động</th>
                                     </tr>
                                 </thead>
@@ -204,6 +220,17 @@ function AdminEventTypes() {
                                             <td>{type.typeCode}</td>
                                             <td>{type.name}</td>
                                             <td>{type.description || '-'}</td>
+                                            <td>
+                                                {type.image ? (
+                                                    <img
+                                                        src={`http://localhost:5000${type.image}`}
+                                                        alt={type.name}
+                                                        style={{ width: '100px', height: 'auto' }}
+                                                    />
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </td>
                                             <td>
                                                 <Button
                                                     variant="outline-primary"
@@ -272,6 +299,30 @@ function AdminEventTypes() {
                                     value={editFormData.description || ''}
                                     onChange={(e) =>
                                         setEditFormData({ ...editFormData, description: e.target.value })
+                                    }
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Hình ảnh hiện tại</Form.Label>
+                                <div>
+                                    {editFormData.image ? (
+                                        <img
+                                            src={`http://localhost:5000${editFormData.image}`}
+                                            alt={editFormData.name}
+                                            style={{ width: '100px', height: 'auto' }}
+                                        />
+                                    ) : (
+                                        <p>Chưa có hình ảnh</p>
+                                    )}
+                                </div>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Thay đổi hình ảnh</Form.Label>
+                                <Form.Control
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) =>
+                                        setEditFormData({ ...editFormData, image: e.target.files[0] })
                                     }
                                 />
                             </Form.Group>

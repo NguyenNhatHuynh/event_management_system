@@ -20,7 +20,7 @@ import CustomerAccount from './pages/client/CustomerAccount';
 import Dashboard from './pages/admin/Dashboard';
 import CustomerManagement from './pages/admin/CustomerManagement';
 import AdminEvents from './pages/admin/Events';
-import AdminEventTypes from './pages/admin/AdminEventTypes'; // Sửa đường dẫn
+import AdminEventTypes from './pages/admin/AdminEventTypes';
 import AdminBlogs from './pages/admin/Blogs';
 import AdminContacts from './pages/admin/Contacts';
 import AdminBookings from './pages/admin/Bookings';
@@ -45,6 +45,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/event-types" element={<EventTypes />} />
+                    <Route path="/event-types/:typeCode" element={<EventTypes />} /> {/* Thêm route chi tiết */}
                     <Route path="/portfolio" element={<Portfolio />} />
                     <Route path="/portfolio/:id" element={<ProjectDetail />} />
                     <Route path="/contact" element={<Contact />} />

@@ -2,16 +2,18 @@
 const express = require('express');
 const router = express.Router();
 const Event = require('../models/Event');
+const EventType = require('../models/EventType');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-// Cấu hình multer để lưu hình ảnh
+// Cấu hình multer để upload hình ảnh
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Thư mục lưu hình ảnh
+        cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Đặt tên file với timestamp
+        cb(null, Date.now() + path.extname(file.originalname));
     },
 });
 
@@ -27,23 +29,15 @@ const upload = multer({
             cb('Chỉ chấp nhận file ảnh (jpeg, jpg, png)!');
         }
     },
-    limits: { fileSize: 5 * 1024 * 1024 }, // Giới hạn kích thước file: 5MB
+    limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-// Tạo thư mục uploads nếu chưa tồn tại
-const fs = require('fs');
-const uploadDir = 'uploads';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
-
-// Phục vụ file tĩnh từ thư mục uploads
 router.use('/uploads', express.static('uploads'));
 
 // Lấy danh sách sự kiện (công khai)
 router.get('/public', async (req, res) => {
     try {
-        const events = await Event.find();
+        const events = await Event.find().populate('eventType');
         res.json(events);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -53,42 +47,38 @@ router.get('/public', async (req, res) => {
 // Lấy danh sách sự kiện (dành cho admin)
 router.get('/', async (req, res) => {
     try {
-        const events = await Event.find();
+        const events = await Event.find().populate('eventType');
         res.json(events);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// Thêm sự kiện mới (với upload hình ảnh)
+// Thêm sự kiện mới
 router.post('/', upload.single('image'), async (req, res) => {
-    const { eventCode, name, date, location, description } = req.body;
+    const { name, eventType, date, location, description } = req.body;
     try {
-        const existingEvent = await Event.findOne({ eventCode });
-        if (existingEvent) {
-            return res.status(400).json({ message: 'Mã sự kiện đã tồn tại' });
-        }
-
         const event = new Event({
-            eventCode,
             name,
+            eventType,
             date,
             location,
             description,
-            image: req.file ? `/uploads/${req.file.filename}` : null, // Lưu đường dẫn hình ảnh
+            image: req.file ? `/uploads/${req.file.filename}` : null,
         });
 
         const newEvent = await event.save();
-        res.status(201).json(newEvent);
+        const populatedEvent = await Event.findById(newEvent._id).populate('eventType');
+        res.status(201).json(populatedEvent);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// Cập nhật sự kiện (với upload hình ảnh)
+// Cập nhật sự kiện
 router.put('/:id', upload.single('image'), async (req, res) => {
     const { id } = req.params;
-    const { eventCode, name, date, location, description } = req.body;
+    const { name, eventType, date, location, description } = req.body;
 
     try {
         const event = await Event.findById(id);
@@ -96,22 +86,24 @@ router.put('/:id', upload.single('image'), async (req, res) => {
             return res.status(404).json({ message: 'Sự kiện không tồn tại' });
         }
 
-        const existingEvent = await Event.findOne({ eventCode, _id: { $ne: id } });
-        if (existingEvent) {
-            return res.status(400).json({ message: 'Mã sự kiện đã tồn tại' });
-        }
-
-        event.eventCode = eventCode;
         event.name = name;
+        event.eventType = eventType;
         event.date = date;
         event.location = location;
         event.description = description;
         if (req.file) {
-            event.image = `/uploads/${req.file.filename}`; // Cập nhật hình ảnh nếu có
+            if (event.image) {
+                const oldImagePath = path.join(__dirname, '..', event.image);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+            event.image = `/uploads/${req.file.filename}`;
         }
 
         const updatedEvent = await event.save();
-        res.json(updatedEvent);
+        const populatedEvent = await Event.findById(updatedEvent._id).populate('eventType');
+        res.json(populatedEvent);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -126,7 +118,6 @@ router.delete('/:id', async (req, res) => {
             return res.status(404).json({ message: 'Sự kiện không tồn tại' });
         }
 
-        // Xóa hình ảnh nếu có
         if (event.image) {
             const imagePath = path.join(__dirname, '..', event.image);
             if (fs.existsSync(imagePath)) {

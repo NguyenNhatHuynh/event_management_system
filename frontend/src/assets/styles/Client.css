@@ -1147,3 +1147,142 @@ body {
     color: #555;
     margin-bottom: 0.5rem;
 }
+
+
+
+
+
+/* frontend/src/assets/styles/Client.css */
+
+/* Event Types Page */
+.event-types-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-types-hero {
+    position: relative;
+    z-index: 0;
+}
+
+.event-types-hero h1 {
+    font-weight: 700;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.event-types-hero p {
+    font-size: 1.2rem;
+}
+
+/* Event Card */
+.event-card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.event-card-image-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.event-card-image {
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.event-card:hover .event-card-image {
+    transform: scale(1.05);
+}
+
+.event-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.event-card:hover .event-card-overlay {
+    opacity: 1;
+}
+
+.view-details-btn {
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.view-details-btn:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.event-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.event-card-description {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Event Type Card */
+.event-type-card {
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.event-type-card:hover {
+    transform: translateY(-5px);
+}
+
+.event-type-card .card-body {
+    padding: 1.5rem;
+}
+
+.event-type-card .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.event-type-card .card-text {
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+/* Form Filter */
+.form-group label {
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+}

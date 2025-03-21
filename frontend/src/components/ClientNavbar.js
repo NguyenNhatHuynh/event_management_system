@@ -73,12 +73,16 @@ function ClientNavbar() {
                                 Giới thiệu
                             </Nav.Link>
                             <NavDropdown title="Tổ chức sự kiện" id="services-dropdown">
+                                <NavDropdown.Item as={NavLink} to="/event-types">
+                                    Xem tất cả loại sự kiện
+                                </NavDropdown.Item>
+                                <NavDropdown.Divider />
                                 {eventTypes.length > 0 ? (
                                     eventTypes.map((type) => (
                                         <NavDropdown.Item
                                             key={type._id}
                                             as={NavLink}
-                                            to={`/portfolio?type=${type.typeCode}`}
+                                            to={`/event-types/${type.typeCode}`}
                                         >
                                             {type.name}
                                         </NavDropdown.Item>

@@ -2,9 +2,10 @@
 const mongoose = require('mongoose');
 
 const eventTypeSchema = new mongoose.Schema({
-    typeCode: { type: String, required: true, unique: true }, // Mã loại sự kiện
-    name: { type: String, required: true }, // Tên loại sự kiện
-    description: { type: String }, // Mô tả (tùy chọn)
+    typeCode: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    description: { type: String },
+    image: { type: String }, // Thêm trường image
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
