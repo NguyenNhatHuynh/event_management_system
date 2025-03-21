@@ -2,84 +2,64 @@ import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import '../../assets/styles/Client.css';
 
+
+import EventAbout from '../../assets/images/about-event.gif';
+import NewBeginning from '../../assets/images/new-beginning.png';
+
 function About() {
     return (
         <div>
-            {/* About Us Section */}
+            {/* Header Section */}
+            <section className="about-header-section">
+                <Container className="text-center">
+                    <h1>CÔNG TY THÁI BÌNH DƯƠNG</h1>
+                    <p className="lead">Chuyên kiến trúc và xây dựng Thái Bình Dương</p>
+                </Container>
+            </section>
+
+            {/* Introduction Section */}
             <section className="about-section">
                 <Container>
                     <Row className="align-items-center">
                         <Col md={6}>
-                            <h1>About Us</h1>
-                            <p className="lead">
-                                EventPro is a leading event management company with over 10 years of experience in creating unforgettable moments.
+                            <h2>GIỚI THIỆU CHUNG</h2>
+                            <p>
+                                VINCO được thành lập năm 1993, chuyên ngành kiến trúc và xây dựng với chất lượng, kỹ thuật và mỹ thuật cao vượt trội, kỳ vọng và mong muốn của khách hàng, từ hộp nhà văn phòng, nhà ở cao cấp...
                             </p>
                             <p>
-                                We specialize in a wide range of events, from elegant weddings to professional corporate conferences. Our team is dedicated to bringing your vision to life with creativity, precision, and passion.
+                                Trải qua 25 năm xây dựng và phát triển, VINCO đã trở thành Tập đoàn Xây dựng lớn mạnh với 12 công ty thành viên, 2500 cán bộ kỹ sư, kiến trúc sư và trên 5000 công nhân viên thông qua các thiết bị máy móc đồng bộ, hiện đại.
                             </p>
-                            <Button variant="primary" as="a" href="/contact">
-                                Get in Touch
-                            </Button>
                         </Col>
                         <Col md={6}>
                             <img
-                                src="/assets/images/about-team.jpg"
-                                alt="Our Team"
-                                className="img-fluid"
+                                src={EventAbout}
+                                alt="Event"
+                                className="img-fluid rounded"
                             />
                         </Col>
                     </Row>
                 </Container>
             </section>
 
-            {/* Our Mission Section */}
+            {/* Milestone Section */}
             <section className="about-section bg-light">
                 <Container>
-                    <Row className="text-center">
-                        <Col>
-                            <h2>Our Mission</h2>
-                            <p className="lead">
-                                To deliver exceptional events that exceed expectations and create lasting memories.
+                    <Row className="align-items-center">
+                        <Col md={6} className="order-md-2">
+                            <h2>CÁC MỐC LỊCH SỬ</h2>
+                            <p>
+                                Hơn hai mươi năm trước, VINCO đã đi những bước đi tiên phong chứng minh khi đạt nước bước vào thời kỳ đổi mới.
+                            </p>
+                            <p>
+                                Và giờ đây, những bước chân ấy đã để lại dấu ấn Lễ Khánh thành đầu tiên trên mọi lĩnh vực từ S, nhưng vẫn còn một tâm thế, một dáng hình khác – vững chắc và mạnh mẽ hơn bao giờ hết.
                             </p>
                         </Col>
-                    </Row>
-                </Container>
-            </section>
-
-            {/* Team Section */}
-            <section className="about-section">
-                <Container>
-                    <h2 className="text-center mb-5">Meet Our Team</h2>
-                    <Row>
-                        <Col md={4} className="text-center">
+                        <Col md={6} className="order-md-1">
                             <img
-                                src="/assets/images/team1.jpg"
-                                alt="Team Member 1"
-                                className="img-fluid rounded-circle mb-3"
-                                style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+                                src={NewBeginning}
+                                alt="New Beginning"
+                                className="img-fluid rounded"
                             />
-                            <h5>Anna Smith</h5>
-                            <p>Event Planner</p>
-                        </Col>
-                        <Col md={4} className="text-center">
-                            <img
-                                src="/assets/images/team2.jpg"
-                                alt="Team Member 2"
-                                className="img-fluid rounded-circle mb-3"
-                                style={{ width: '150px', height: '150px', objectFit: 'cover' }}
-                            />
-                            <h5>John Doe</h5>
-                            <p>Creative Director</p>
-                        </Col>
-                        <Col md={4} className="text-center">
-                            <img
-                                src="/assets/images/team3.jpg"
-                                alt="Team Member 3"
-                                className="img-fluid rounded-circle mb-3"
-                                style={{ width: '150px', height: '150px', objectFit: 'cover' }}
-                            />
-                            <h5>Lisa Brown</h5>
-                            <p>Marketing Lead</p>
                         </Col>
                     </Row>
                 </Container>

@@ -1,32 +1,39 @@
+// backend/controllers/customerController.js
 const Customer = require('../models/Customer');
-const bcrypt = require('bcryptjs');
 
-exports.getAllCustomers = async (req, res) => {
+exports.getCustomers = async (req, res) => {
     try {
         const customers = await Customer.find();
         res.json(customers);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 
 exports.createCustomer = async (req, res) => {
-    const { customerCode, fullName, phone, email, address, password } = req.body;
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
-
-    const customer = new Customer({
-        customerCode,
-        fullName,
-        phone,
-        email,
-        address,
-        password: hashedPassword,
-    });
-
     try {
-        const newCustomer = await customer.save();
-        res.status(201).json(newCustomer);
-    } catch (err) {
-        res.status(400).json({ message: err.message });
+        const customer = new Customer(req.body);
+        await customer.save();
+        res.status(201).json(customer);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+exports.updateCustomer = async (req, res) => {
+    try {
+        const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(customer);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+exports.deleteCustomer = async (req, res) => {
+    try {
+        await Customer.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Customer deleted' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };

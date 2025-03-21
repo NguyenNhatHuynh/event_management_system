@@ -1,3 +1,4 @@
+// backend/models/Contract.js
 const mongoose = require('mongoose');
 
 const contractSchema = new mongoose.Schema({
@@ -11,6 +12,12 @@ const contractSchema = new mongoose.Schema({
     status: { type: String, enum: ['Pending', 'Signed', 'Completed', 'Cancelled'], default: 'Pending' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+});
+
+// Tự động cập nhật updatedAt khi chỉnh sửa
+contractSchema.pre('save', function (next) {
+    this.updatedAt = Date.now();
+    next();
 });
 
 module.exports = mongoose.model('Contract', contractSchema);

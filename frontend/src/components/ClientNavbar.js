@@ -1,41 +1,127 @@
-import React from 'react';
-import { Navbar, Nav, Container } from 'react-bootstrap';
-import { NavLink } from 'react-router-dom'; // Sử dụng NavLink thay vì Link để hỗ trợ active
+// frontend/src/components/ClientNavbar.js
+import React, { useEffect, useState } from 'react';
+import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
+import { NavLink } from 'react-router-dom';
+import axios from 'axios';
 import '../assets/styles/Client.css';
 
 function ClientNavbar() {
+    const [eventTypes, setEventTypes] = useState([]);
+
+    // Lấy danh sách loại sự kiện từ API
+    useEffect(() => {
+        const fetchEventTypes = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/event-types/public');
+                setEventTypes(response.data);
+            } catch (error) {
+                console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
+            }
+        };
+        fetchEventTypes();
+    }, []);
+
     return (
-        <Navbar expand="lg" className="client-navbar" sticky="top">
-            <Container>
-                <Navbar.Brand as={NavLink} to="/">EventPro</Navbar.Brand>
-                <Navbar.Toggle aria-controls="client-nav" />
-                <Navbar.Collapse id="client-nav">
-                    <Nav className="ms-auto">
-                        <Nav.Link as={NavLink} to="/" end className={({ isActive }) => (isActive ? 'active' : '')}>
-                            Home
-                        </Nav.Link>
-                        <Nav.Link as={NavLink} to="/about" className={({ isActive }) => (isActive ? 'active' : '')}>
-                            About
-                        </Nav.Link>
-                        <Nav.Link as={NavLink} to="/event-types" className={({ isActive }) => (isActive ? 'active' : '')}>
-                            Services
-                        </Nav.Link>
-                        <Nav.Link as={NavLink} to="/portfolio" className={({ isActive }) => (isActive ? 'active' : '')}>
-                            Portfolio
-                        </Nav.Link>
-                        <Nav.Link as={NavLink} to="/blog" className={({ isActive }) => (isActive ? 'active' : '')}>
-                            Blog
-                        </Nav.Link>
-                        <Nav.Link as={NavLink} to="/contact" className={({ isActive }) => (isActive ? 'active' : '')}>
-                            Contact
-                        </Nav.Link>
-                        <Nav.Link as={NavLink} to="/login" className={({ isActive }) => (isActive ? 'active' : '')}>
-                            Login
-                        </Nav.Link>
-                    </Nav>
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+        <div>
+            {/* Top Bar */}
+            <div className="top-bar">
+                <Container className="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span>CÔNG TY TỔ CHỨC SỰ KIỆN EVENTPRO</span>
+                    </div>
+                    <div className="d-flex align-items-center">
+                        <a href="/blog">Blog</a>
+                        <a href="/portfolio">Dự án</a>
+                        <a href="/careers">Tuyển dụng</a>
+                        <a href="tel:0986989626" className="ms-3">
+                            HOTLINE: 0986.989.626
+                        </a>
+                        <div className="social-icons">
+                            <a href="https://facebook.com">
+                                <i className="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://youtube.com">
+                                <i className="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </Container>
+            </div>
+
+            {/* Main Navbar */}
+            <Navbar expand="lg" className="client-navbar" sticky="top">
+                <Container>
+                    <Navbar.Brand as={NavLink} to="/">
+                        EventPro
+                    </Navbar.Brand>
+                    <Navbar.Toggle aria-controls="client-nav" />
+                    <Navbar.Collapse id="client-nav">
+                        <Nav className="ms-auto">
+                            <Nav.Link
+                                as={NavLink}
+                                to="/"
+                                end
+                                className={({ isActive }) => (isActive ? 'active' : '')}
+                            >
+                                Trang chủ
+                            </Nav.Link>
+                            <Nav.Link
+                                as={NavLink}
+                                to="/about"
+                                className={({ isActive }) => (isActive ? 'active' : '')}
+                            >
+                                Giới thiệu
+                            </Nav.Link>
+                            <NavDropdown title="Tổ chức sự kiện" id="services-dropdown">
+                                {eventTypes.length > 0 ? (
+                                    eventTypes.map((type) => (
+                                        <NavDropdown.Item
+                                            key={type._id}
+                                            as={NavLink}
+                                            to={`/portfolio?type=${type.typeCode}`}
+                                        >
+                                            {type.name}
+                                        </NavDropdown.Item>
+                                    ))
+                                ) : (
+                                    <NavDropdown.Item disabled>
+                                        Chưa có loại sự kiện
+                                    </NavDropdown.Item>
+                                )}
+                            </NavDropdown>
+                            <Nav.Link
+                                as={NavLink}
+                                to="/portfolio"
+                                className={({ isActive }) => (isActive ? 'active' : '')}
+                            >
+                                Dự án
+                            </Nav.Link>
+                            <Nav.Link
+                                as={NavLink}
+                                to="/blog"
+                                className={({ isActive }) => (isActive ? 'active' : '')}
+                            >
+                                Tin tức
+                            </Nav.Link>
+                            <Nav.Link
+                                as={NavLink}
+                                to="/contact"
+                                className={({ isActive }) => (isActive ? 'active' : '')}
+                            >
+                                Liên hệ
+                            </Nav.Link>
+                            <Nav.Link
+                                as={NavLink}
+                                to="/login"
+                                className={({ isActive }) => (isActive ? 'active' : '')}
+                            >
+                                Đăng nhập
+                            </Nav.Link>
+                        </Nav>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+        </div>
     );
 }
 
