@@ -58,7 +58,7 @@ app.use((req, res, next) => {
 // Routes
 const customerRoutes = require('./routes/customerRoutes');
 const eventTypeRoutes = require('./routes/eventTypeRoutes');
-const eventRoutes = require('./routes/eventRoutes');
+const { router: eventRoutes, publicRouter: eventPublicRoutes } = require('./routes/eventRoutes');
 const contractRoutes = require('./routes/contractRoutes');
 const userRoutes = require('./routes/userRoutes');
 const blogRoutes = require('./routes/blogRoutes');
@@ -67,7 +67,7 @@ const settingRoutes = require('./routes/settingRoutes');
 const authRoutes = require('./routes/authRoutes');
 
 // Route công khai
-app.use('/api/events/public', eventRoutes);
+app.use('/api/events/public', eventPublicRoutes);
 app.use('/api/event-types/public', eventTypeRoutes);
 
 // Các route admin được bảo vệ bằng middleware auth và adminOnly

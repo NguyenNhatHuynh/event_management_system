@@ -1107,46 +1107,64 @@ body {
 
 
 
-
-
-
-
-
-
-
 .project-detail-page {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.project-detail-hero {
     background-color: #f8f9fa;
 }
 
-.project-detail-content .card {
-    border-radius: 10px;
+.project-detail-hero {
+    position: relative;
+    z-index: 0;
 }
 
-.project-detail-content .card-img-top {
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+.project-detail-hero h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.project-detail-content .card-body {
-    padding: 1.5rem;
-}
-
-.project-detail-content .card-title {
+.project-detail-hero p {
+    font-family: 'Roboto', sans-serif;
     font-size: 1.25rem;
-    font-weight: 600;
-    color: #333;
 }
 
-.project-detail-content .card-text {
-    color: #555;
-    margin-bottom: 0.5rem;
+.project-detail-content {
+    background-color: #fff;
 }
+
+.project-detail-content h2,
+.project-detail-content h3 {
+    font-family: 'Poppins', sans-serif;
+    color: #007bff;
+}
+
+.project-detail-content p {
+    font-family: 'Roboto', sans-serif;
+    color: #6c757d;
+}
+
+.project-detail-content .card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.project-detail-content .card:hover {
+    transform: translateY(-5px);
+}
+
+.project-detail-content .btn {
+    font-family: 'Poppins', sans-serif;
+    transition: background-color 0.3s ease;
+}
+
+.project-detail-content .btn:hover {
+    background-color: #0056b3;
+}
+
+
+
+
+
 
 
 

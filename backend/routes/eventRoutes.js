@@ -1,6 +1,7 @@
 // backend/routes/eventRoutes.js
 const express = require('express');
 const router = express.Router();
+const publicRouter = express.Router(); // Router riêng cho các route công khai
 const Event = require('../models/Event');
 const EventType = require('../models/EventType');
 const multer = require('multer');
@@ -33,12 +34,26 @@ const upload = multer({
 });
 
 // Route công khai: Lấy danh sách sự kiện (chỉ hiển thị sự kiện "Đã phê duyệt")
-router.get('/public', async (req, res) => {
+publicRouter.get('/', async (req, res) => {
     try {
-        const events = await Event.find({ status: 'Đã phê duyệt' }).populate('eventType');
+        const events = await Event.find({ status: 'Đã phê duyệt' }).lean();
         res.json(events);
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+});
+
+// Route công khai: Lấy chi tiết sự kiện theo ID (chỉ hiển thị sự kiện "Đã phê duyệt")
+publicRouter.get('/:id', async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id).lean();
+        if (!event || event.status !== 'Đã phê duyệt') {
+            return res.status(404).json({ message: 'Sự kiện không tồn tại hoặc chưa được phê duyệt' });
+        }
+        res.json(event);
+    } catch (error) {
+        console.error('Lỗi khi lấy chi tiết sự kiện:', error);
+        res.status(500).json({ message: 'Lỗi server', error });
     }
 });
 
@@ -156,4 +171,4 @@ router.patch('/:id/status', async (req, res) => {
     }
 });
 
-module.exports = router;
+module.exports = { router, publicRouter };
