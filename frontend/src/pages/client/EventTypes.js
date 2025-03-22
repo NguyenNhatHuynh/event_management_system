@@ -1,4 +1,3 @@
-// frontend/src/pages/client/EventTypes.js
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
 import { useParams, Link } from 'react-router-dom';
@@ -16,7 +15,7 @@ function EventTypes() {
 
     const fetchEventTypes = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/event-types/public');
+            const response = await axios.get('/api/event-types/public');
             setEventTypes(response.data);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
@@ -26,7 +25,7 @@ function EventTypes() {
     const fetchEvents = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:5000/api/events/public');
+            const response = await axios.get('/api/events/public');
             let filteredEvents = response.data;
             if (typeCode) {
                 filteredEvents = filteredEvents.filter(
@@ -141,17 +140,21 @@ function EventTypes() {
                                 ) : filteredEvents.length > 0 ? (
                                     filteredEvents.map((event) => (
                                         <Col md={4} key={event._id} className="mb-4">
-                                            <Card className="event-card shadow-sm animate__animated animate__fadeIn">
+                                            <Card className="event-card shadow-sm animate__animated animate__fadeIn h-100 d-flex flex-column">
                                                 <div className="event-card-image-wrapper">
                                                     <Card.Img
                                                         variant="top"
                                                         src={
                                                             event.image
-                                                                ? `http://localhost:5000${event.image}`
-                                                                : 'https://via.placeholder.com/300x200'
+                                                                ? event.image
+                                                                : '/images/placeholder.jpg'
                                                         }
                                                         alt={event.name}
                                                         className="event-card-image"
+                                                        onError={(e) => {
+                                                            console.error('Error loading image:', event.image);
+                                                            e.target.src = '/images/error.jpg';
+                                                        }}
                                                     />
                                                     <div className="event-card-overlay">
                                                         <Link to={`/portfolio/${event._id}`}>
@@ -161,7 +164,7 @@ function EventTypes() {
                                                         </Link>
                                                     </div>
                                                 </div>
-                                                <Card.Body>
+                                                <Card.Body className="d-flex flex-column">
                                                     <Card.Title className="event-card-title">
                                                         {event.name}
                                                     </Card.Title>
@@ -172,7 +175,7 @@ function EventTypes() {
                                                     <Card.Text>
                                                         <strong>Địa điểm:</strong> {event.location}
                                                     </Card.Text>
-                                                    <Card.Text className="event-card-description">
+                                                    <Card.Text className="event-card-description flex-grow-1">
                                                         {event.description
                                                             ? event.description.substring(0, 100) + '...'
                                                             : 'Không có mô tả'}

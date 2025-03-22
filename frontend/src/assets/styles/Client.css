@@ -1301,7 +1301,6 @@ body {
 .event-types-hero,
 .portfolio-hero {
     position: relative;
-    Index: 0;
 }
 
 .event-type-card,
@@ -1417,4 +1416,103 @@ body {
 /* Đảm bảo nút "Xem chi tiết" luôn ở dưới cùng */
 .portfolio-card .card-body .mt-auto {
     margin-top: auto;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.event-types-page {
+    background-color: #f8f9fa;
+}
+
+.event-types-hero {
+    position: relative;
+    z-index: 0;
+}
+
+.event-card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+    min-height: 450px;
+    /* Chiều cao tối thiểu cho card */
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+}
+
+.event-card-image-wrapper {
+    position: relative;
+}
+
+.event-card-image {
+    width: 100%;
+    height: 200px;
+    /* Chiều cao cố định cho hình ảnh */
+    object-fit: cover;
+    /* Đảm bảo hình ảnh không bị méo */
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.event-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.event-card:hover .event-card-overlay {
+    opacity: 1;
+}
+
+.view-details-btn {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+.event-card-title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.event-card-description {
+    color: #6c757d;
+}
+
+.event-type-card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.event-type-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Đảm bảo nội dung trong card căn chỉnh đồng đều */
+.event-card .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
