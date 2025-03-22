@@ -19,7 +19,7 @@ import Login from './pages/client/Login';
 import CustomerAccount from './pages/client/CustomerAccount';
 import Dashboard from './pages/admin/Dashboard';
 import CustomerManagement from './pages/admin/CustomerManagement';
-import AdminEvents from './pages/admin/AdminEvents'; // Sửa từ './pages/admin/Events' thành './pages/admin/AdminEvents'
+import AdminEvents from './pages/admin/AdminEvents';
 import AdminEventTypes from './pages/admin/AdminEventTypes';
 import AdminBlogs from './pages/admin/Blogs';
 import AdminContacts from './pages/admin/Contacts';

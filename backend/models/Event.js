@@ -2,19 +2,45 @@
 const mongoose = require('mongoose');
 
 const eventSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    eventType: { type: mongoose.Schema.Types.ObjectId, ref: 'EventType', required: true },
-    date: { type: Date, required: true },
-    location: { type: String, required: true },
-    description: { type: String },
-    image: { type: String },
+    name: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    eventType: {
+        type: String, // Lưu trữ _id của EventType
+        required: true,
+    },
+    date: {
+        type: Date,
+        required: true,
+    },
+    location: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    description: {
+        type: String,
+        trim: true,
+    },
     status: {
         type: String,
         enum: ['Đang chờ', 'Đã phê duyệt', 'Hủy'],
-        default: 'Đang chờ'
+        default: 'Đang chờ',
     },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
+    image: {
+        type: String,
+        default: null,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    },
 });
 
 eventSchema.pre('save', function (next) {

@@ -1,3 +1,4 @@
+// frontend/src/pages/client/Portfolio.js
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
@@ -15,17 +16,14 @@ function Portfolio() {
     const fetchEvents = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/api/events/public');
-            console.log('Public events data:', response.data);
-            let filteredEvents = response.data;
-
+            let url = 'http://localhost:5000/api/events/public';
             if (typeCode) {
-                filteredEvents = filteredEvents.filter(
-                    (event) => event.eventType?.typeCode === typeCode
-                );
+                url += `?typeCode=${typeCode}`;
             }
-
-            setEvents(filteredEvents);
+            console.log('Fetching events with URL:', url);
+            const response = await axios.get(url);
+            console.log('Public events data:', response.data);
+            setEvents(response.data);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sự kiện:', error);
         } finally {
@@ -43,7 +41,7 @@ function Portfolio() {
                 <Container>
                     <h1 className="display-4">Danh mục sự kiện</h1>
                     <p className="lead">
-                        {typeCode
+                        {typeCode && events.length > 0
                             ? `Các sự kiện thuộc loại: ${events[0]?.eventType?.name || typeCode}`
                             : 'Khám phá các sự kiện nổi bật mà chúng tôi đã tổ chức'}
                     </p>

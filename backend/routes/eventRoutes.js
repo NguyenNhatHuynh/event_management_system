@@ -1,7 +1,7 @@
 // backend/routes/eventRoutes.js
 const express = require('express');
 const router = express.Router();
-const publicRouter = express.Router(); // Router riêng cho các route công khai
+const publicRouter = express.Router();
 const Event = require('../models/Event');
 const EventType = require('../models/EventType');
 const multer = require('multer');
@@ -36,7 +36,23 @@ const upload = multer({
 // Route công khai: Lấy danh sách sự kiện (chỉ hiển thị sự kiện "Đã phê duyệt")
 publicRouter.get('/', async (req, res) => {
     try {
-        const events = await Event.find({ status: 'Đã phê duyệt' }).lean();
+        const { eventType, typeCode } = req.query;
+        const query = { status: 'Đã phê duyệt' };
+
+        if (eventType) {
+            query.eventType = eventType;
+        }
+
+        if (typeCode) {
+            // Tìm eventType dựa trên typeCode
+            const eventType = await EventType.findOne({ typeCode }).lean();
+            if (!eventType) {
+                return res.status(404).json({ message: 'Loại sự kiện không tồn tại' });
+            }
+            query.eventType = eventType._id;
+        }
+
+        const events = await Event.find(query).populate('eventType').lean();
         res.json(events);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -46,7 +62,7 @@ publicRouter.get('/', async (req, res) => {
 // Route công khai: Lấy chi tiết sự kiện theo ID (chỉ hiển thị sự kiện "Đã phê duyệt")
 publicRouter.get('/:id', async (req, res) => {
     try {
-        const event = await Event.findById(req.params.id).lean();
+        const event = await Event.findById(req.params.id).populate('eventType').lean();
         if (!event || event.status !== 'Đã phê duyệt') {
             return res.status(404).json({ message: 'Sự kiện không tồn tại hoặc chưa được phê duyệt' });
         }
@@ -100,11 +116,11 @@ router.put('/:id', upload.single('image'), async (req, res) => {
             return res.status(404).json({ message: 'Sự kiện không tồn tại' });
         }
 
-        event.name = name;
-        event.eventType = eventType;
-        event.date = date;
-        event.location = location;
-        event.description = description;
+        event.name = name || event.name;
+        event.eventType = eventType || event.eventType;
+        event.date = date || event.date;
+        event.location = location || event.location;
+        event.description = description || event.description;
         event.status = status || event.status;
         if (req.file) {
             if (event.image) {

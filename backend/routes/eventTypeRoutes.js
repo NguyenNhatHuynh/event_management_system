@@ -6,7 +6,7 @@ const EventType = require('../models/EventType');
 // Route công khai: Lấy danh sách loại sự kiện
 router.get('/public', async (req, res) => {
     try {
-        const eventTypes = await EventType.find();
+        const eventTypes = await EventType.find().lean();
         res.json(eventTypes);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -23,15 +23,11 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Route admin: Thêm loại sự kiện
+// Route admin: Thêm loại sự kiện mới
 router.post('/', async (req, res) => {
-    const { typeCode, name, description } = req.body;
+    const { name, typeCode, description } = req.body;
     try {
-        const eventType = new EventType({
-            typeCode,
-            name,
-            description,
-        });
+        const eventType = new EventType({ name, typeCode, description });
         const newEventType = await eventType.save();
         res.status(201).json(newEventType);
     } catch (error) {
@@ -42,17 +38,17 @@ router.post('/', async (req, res) => {
 // Route admin: Cập nhật loại sự kiện
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { typeCode, name, description } = req.body;
+    const { name, typeCode, description } = req.body;
+
     try {
         const eventType = await EventType.findById(id);
         if (!eventType) {
             return res.status(404).json({ message: 'Loại sự kiện không tồn tại' });
         }
 
-        eventType.typeCode = typeCode;
-        eventType.name = name;
-        eventType.description = description;
-
+        eventType.name = name || eventType.name;
+        eventType.typeCode = typeCode || eventType.typeCode;
+        eventType.description = description || eventType.description;
         const updatedEventType = await eventType.save();
         res.json(updatedEventType);
     } catch (error) {
