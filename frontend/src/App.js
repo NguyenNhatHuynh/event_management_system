@@ -1,4 +1,3 @@
-// frontend/src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Outlet } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -30,7 +29,8 @@ import AdminProfile from './pages/admin/Profile';
 import BlogDetail from './pages/client/BlogDetail';
 import AddBlog from './pages/admin/AddBlog';
 import EditBlog from './pages/admin/EditBlog';
-import TestQuill from './pages/admin/TestQuill'; // Thêm import
+import TestQuill from './pages/admin/TestQuill';
+import BookingForm from './pages/client/BookingForm';
 
 function App() {
     return (
@@ -64,6 +64,8 @@ function App() {
                             </PrivateRoute>
                         }
                     />
+                    {/* Thêm route cho trang đặt lịch */}
+                    <Route path="/booking" element={<BookingForm />} />
                 </Route>
 
                 {/* Các route cho admin */}
@@ -82,7 +84,7 @@ function App() {
                     <Route path="blogs" element={<AdminBlogs />} />
                     <Route path="blogs/add" element={<AddBlog />} />
                     <Route path="blogs/edit/:id" element={<EditBlog />} />
-                    <Route path="test-quill" element={<TestQuill />} /> {/* Thêm route thử nghiệm */}
+                    <Route path="test-quill" element={<TestQuill />} />
                     <Route path="contacts" element={<AdminContacts />} />
                     <Route path="bookings" element={<AdminBookings />} />
                     <Route path="analytics" element={<AdminAnalytics />} />

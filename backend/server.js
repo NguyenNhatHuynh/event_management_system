@@ -1,4 +1,3 @@
-// backend/server.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -74,12 +73,14 @@ const { router: blogRoutes, publicRouter: blogPublicRoutes } = require('./routes
 const contactRoutes = require('./routes/contactRoutes');
 const settingRoutes = require('./routes/settingRoutes');
 const authRoutes = require('./routes/authRoutes');
+const bookingRoutes = require('./routes/bookingRoutes'); // Thêm route cho đặt lịch
 
 // Route công khai
 app.use('/api/events/public', eventPublicRoutes);
 app.use('/api/event-types/public', eventTypeRoutes);
 app.use('/api/blogs/public', blogPublicRoutes);
 app.use('/api/contacts', contactRoutes); // Route công khai để client gửi liên hệ
+app.use('/api/bookings', bookingRoutes); // Route cho đặt lịch (công khai và bảo vệ)
 
 // Các route admin được bảo vệ bằng middleware auth và adminOnly
 app.use('/api/customers', auth, adminOnly, customerRoutes);

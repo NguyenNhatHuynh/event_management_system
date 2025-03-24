@@ -1,4 +1,3 @@
-// frontend/src/components/ClientNavbar.js
 import React, { useEffect, useState } from 'react';
 import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
@@ -106,6 +105,14 @@ function ClientNavbar() {
                                 className={({ isActive }) => (isActive ? 'active' : '')}
                             >
                                 Tin tức
+                            </Nav.Link>
+                            {/* Thêm mục Đặt lịch */}
+                            <Nav.Link
+                                as={NavLink}
+                                to="/booking"
+                                className={({ isActive }) => (isActive ? 'active' : '')}
+                            >
+                                Đặt lịch
                             </Nav.Link>
                             <Nav.Link
                                 as={NavLink}
