@@ -52,8 +52,8 @@ if (process.env.NODE_ENV === 'development') {
 
 // Giới hạn số lượng request
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
+    windowMs: 15 * 60 * 1000, // 15 phút
+    max: process.env.NODE_ENV === 'development' ? 1000 : 100, // Tăng lên 1000 trong môi trường phát triển
     message: 'Quá nhiều yêu cầu từ IP này, vui lòng thử lại sau 15 phút!',
 });
 app.use((req, res, next) => {
@@ -73,7 +73,8 @@ const { router: blogRoutes, publicRouter: blogPublicRoutes } = require('./routes
 const contactRoutes = require('./routes/contactRoutes');
 const settingRoutes = require('./routes/settingRoutes');
 const authRoutes = require('./routes/authRoutes');
-const bookingRoutes = require('./routes/bookingRoutes'); // Thêm route cho đặt lịch
+const bookingRoutes = require('./routes/bookingRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes'); // Thêm route cho dashboard
 
 // Route công khai
 app.use('/api/events/public', eventPublicRoutes);
@@ -92,6 +93,7 @@ app.use('/api/contacts', auth, adminOnly, contactRoutes); // Route admin để q
 app.use('/api/settings', auth, adminOnly, settingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', auth, userRoutes);
+app.use('/api/dashboard', auth, adminOnly, dashboardRoutes); // Thêm route cho dashboard
 
 // Route cơ bản để kiểm tra API
 app.get('/', (req, res) => {
@@ -116,3 +118,87 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ============================ DÙNG ĐỂ TẠO TÀI KHOẢN ADMIN ==================================
+
+// const User = require('./models/User');
+// const bcrypt = require('bcryptjs');
+
+// const initializeAdmin = async () => {
+//     try {
+//         const adminExists = await User.findOne({ role: 'admin' });
+//         if (!adminExists) {
+//             const hashedPassword = await bcrypt.hash('admin123', 10);
+//             const admin = new User({
+//                 username: 'admin',
+//                 email: 'admin@example.com',
+//                 password: hashedPassword,
+//                 role: 'admin',
+//                 fullName: 'Admin User',
+//                 phone: '0987543211',
+//                 address: '456 Đường Láng, Hà Nội',
+//             });
+//             await admin.save();
+//             console.log('Tài khoản admin đã được tạo!');
+//         }
+//     } catch (error) {
+//         console.error('Lỗi khi tạo tài khoản admin:', error);
+//     }
+// };
+
+// // Gọi hàm khởi tạo admin sau khi kết nối database
+// connectDB().then(() => {
+//     initializeAdmin();
+// }).catch((error) => {
+//     console.error('Failed to connect to MongoDB:', error);
+//     process.exit(1);
+// });

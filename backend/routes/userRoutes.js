@@ -1,13 +1,26 @@
-// backend/routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const { adminOnly } = require('../middleware/auth');
+const userController = require('../controllers/userController');
 
-// Cập nhật thông tin user
-router.put('/:id', async (req, res) => {
+// Lấy danh sách người dùng (chỉ admin)
+router.get('/', adminOnly, userController.getUsers);
+
+// Tạo người dùng mới (chỉ admin)
+router.post('/', adminOnly, userController.createUser);
+
+// Cập nhật thông tin người dùng (chỉ admin)
+router.put('/:id', adminOnly, userController.updateUser);
+
+// Xóa người dùng (chỉ admin)
+router.delete('/:id', adminOnly, userController.deleteUser);
+
+// Cập nhật thông tin cá nhân (người dùng tự cập nhật)
+router.put('/profile/:id', async (req, res) => {
     const { id } = req.params;
-    const { fullName, email } = req.body;
+    const { fullName, email, phone, address } = req.body;
 
     try {
         // Kiểm tra xem user có quyền cập nhật không
@@ -23,7 +36,7 @@ router.put('/:id', async (req, res) => {
 
         const updatedUser = await User.findByIdAndUpdate(
             id,
-            { fullName, email },
+            { fullName, email, phone, address },
             { new: true }
         );
 
@@ -35,6 +48,8 @@ router.put('/:id', async (req, res) => {
             id: updatedUser._id,
             email: updatedUser.email,
             fullName: updatedUser.fullName,
+            phone: updatedUser.phone,
+            address: updatedUser.address,
             role: updatedUser.role,
         });
     } catch (error) {
@@ -42,7 +57,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// Đổi mật khẩu
+// Đổi mật khẩu (người dùng tự đổi)
 router.put('/:id/password', async (req, res) => {
     const { id } = req.params;
     const { currentPassword, newPassword } = req.body;
