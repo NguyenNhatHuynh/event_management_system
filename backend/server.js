@@ -21,17 +21,28 @@ connectDB().catch((error) => {
     process.exit(1);
 });
 
-// Middleware
+// Middleware CORS
 const corsOptions = {
     origin: process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 200,
 };
+
+// Áp dụng CORS cho tất cả các route
 app.use(cors(corsOptions));
+
+// Middleware khác
 app.use(express.json());
 app.use(helmet());
 
-// Phục vụ file tĩnh (hình ảnh trong thư mục uploads)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Phục vụ file tĩnh (hình ảnh trong thư mục uploads) với CORS
+app.use('/uploads', (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000');
+    res.header('Access-Control-Allow-Methods', 'GET');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // Logging
 if (process.env.NODE_ENV === 'development') {
@@ -61,7 +72,7 @@ const eventTypeRoutes = require('./routes/eventTypeRoutes');
 const { router: eventRoutes, publicRouter: eventPublicRoutes } = require('./routes/eventRoutes');
 const contractRoutes = require('./routes/contractRoutes');
 const userRoutes = require('./routes/userRoutes');
-const { router: blogRoutes, publicRouter: blogPublicRoutes } = require('./routes/blogRoutes'); // Sửa lại dòng này
+const { router: blogRoutes, publicRouter: blogPublicRoutes } = require('./routes/blogRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const settingRoutes = require('./routes/settingRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -69,14 +80,14 @@ const authRoutes = require('./routes/authRoutes');
 // Route công khai
 app.use('/api/events/public', eventPublicRoutes);
 app.use('/api/event-types/public', eventTypeRoutes);
-app.use('/api/blogs/public', blogPublicRoutes); // Thêm route công khai cho blog
+app.use('/api/blogs/public', blogPublicRoutes);
 
 // Các route admin được bảo vệ bằng middleware auth và adminOnly
 app.use('/api/customers', auth, adminOnly, customerRoutes);
 app.use('/api/event-types', auth, adminOnly, eventTypeRoutes);
 app.use('/api/events', auth, adminOnly, eventRoutes);
 app.use('/api/contracts', auth, adminOnly, contractRoutes);
-app.use('/api/blogs', auth, adminOnly, blogRoutes); // Sử dụng blogRoutes cho admin
+app.use('/api/blogs', auth, adminOnly, blogRoutes);
 app.use('/api/contacts', auth, adminOnly, contactRoutes);
 app.use('/api/settings', auth, adminOnly, settingRoutes);
 app.use('/api/auth', authRoutes);

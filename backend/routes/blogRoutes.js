@@ -1,6 +1,6 @@
 // backend/routes/blogRoutes.js
 const express = require('express');
-const { getBlogs, createBlog, updateBlog, deleteBlog, toggleApproval, uploadImage } = require('../controllers/blogController');
+const { getBlogs, createBlog, updateBlog, deleteBlog, toggleApproval, uploadImage, getPublicBlogs, getPublicBlogById } = require('../controllers/blogController');
 const multer = require('multer');
 const path = require('path');
 
@@ -13,7 +13,21 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + path.extname(file.originalname));
     },
 });
-const upload = multer({ storage });
+const upload = multer({
+    storage,
+    fileFilter: (req, file, cb) => {
+        const filetypes = /jpeg|jpg|png|gif/;
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = filetypes.test(file.mimetype);
+
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Chỉ hỗ trợ các định dạng hình ảnh: jpeg, jpg, png, gif'));
+        }
+    },
+    limits: { fileSize: 5 * 1024 * 1024 }, // Giới hạn 5MB
+});
 
 const router = express.Router();
 const publicRouter = express.Router();
@@ -27,27 +41,7 @@ router.patch('/:id/toggle-approval', toggleApproval);
 router.post('/upload-image', upload.single('image'), uploadImage);
 
 // Routes công khai cho client
-publicRouter.get('/', async (req, res) => {
-    try {
-        const Blog = require('../models/Blog');
-        const blogs = await Blog.find({ status: 'approved' });
-        res.json(blogs);
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi server', error: error.message });
-    }
-});
-
-publicRouter.get('/:id', async (req, res) => {
-    try {
-        const Blog = require('../models/Blog');
-        const blog = await Blog.findOne({ _id: req.params.id, status: 'approved' });
-        if (!blog) {
-            return res.status(404).json({ message: 'Bài viết không tồn tại hoặc chưa được phê duyệt' });
-        }
-        res.json(blog);
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi server', error: error.message });
-    }
-});
+publicRouter.get('/', getPublicBlogs);
+publicRouter.get('/:id', getPublicBlogById);
 
 module.exports = { router, publicRouter };

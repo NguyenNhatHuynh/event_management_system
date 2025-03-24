@@ -17,7 +17,18 @@ exports.getBlogs = async (req, res) => {
 exports.getPublicBlogs = async (req, res) => {
     try {
         const blogs = await Blog.find({ status: 'approved' }).sort({ createdAt: -1 });
-        res.json(blogs);
+        // Kiểm tra xem hình ảnh có tồn tại không
+        const blogsWithImageCheck = blogs.map(blog => {
+            if (blog.image) {
+                const imagePath = path.join(__dirname, '..', blog.image);
+                if (!fs.existsSync(imagePath)) {
+                    console.log(`Hình ảnh không tồn tại: ${blog.image}`);
+                    blog.image = null; // Đặt image thành null nếu file không tồn tại
+                }
+            }
+            return blog;
+        });
+        res.json(blogsWithImageCheck);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -29,6 +40,13 @@ exports.getPublicBlogById = async (req, res) => {
         const blog = await Blog.findOne({ _id: req.params.id, status: 'approved' });
         if (!blog) {
             return res.status(404).json({ message: 'Bài viết không tồn tại hoặc chưa được phê duyệt' });
+        }
+        if (blog.image) {
+            const imagePath = path.join(__dirname, '..', blog.image);
+            if (!fs.existsSync(imagePath)) {
+                console.log(`Hình ảnh không tồn tại: ${blog.image}`);
+                blog.image = null;
+            }
         }
         res.json(blog);
     } catch (error) {
@@ -45,7 +63,7 @@ exports.createBlog = async (req, res) => {
         if (image) {
             const imagePath = path.join(__dirname, '..', image);
             if (!fs.existsSync(imagePath)) {
-                return res.status(500).json({ message: 'Hình ảnh không tồn tại trên server' });
+                return res.status(500).json({ message: 'Hình ảnh không tồn tại trên server sau khi upload' });
             }
         }
 
@@ -73,7 +91,7 @@ exports.updateBlog = async (req, res) => {
         if (image && req.file) {
             const imagePath = path.join(__dirname, '..', image);
             if (!fs.existsSync(imagePath)) {
-                return res.status(500).json({ message: 'Hình ảnh không tồn tại trên server' });
+                return res.status(500).json({ message: 'Hình ảnh không tồn tại trên server sau khi upload' });
             }
         }
 
@@ -127,6 +145,7 @@ exports.toggleApproval = async (req, res) => {
     }
 };
 
+// Upload hình ảnh (cho editor)
 exports.uploadImage = async (req, res) => {
     try {
         if (!req.file) {
@@ -135,7 +154,7 @@ exports.uploadImage = async (req, res) => {
         const imageUrl = `/uploads/${req.file.filename}`;
         const imagePath = path.join(__dirname, '..', imageUrl);
         if (!fs.existsSync(imagePath)) {
-            return res.status(500).json({ message: 'Hình ảnh không tồn tại trên server' });
+            return res.status(500).json({ message: 'Hình ảnh không tồn tại trên server sau khi upload' });
         }
         res.json({ url: `http://localhost:5000${imageUrl}` });
     } catch (error) {
