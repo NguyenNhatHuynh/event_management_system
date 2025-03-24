@@ -1,0 +1,26 @@
+/* frontend/src/assets/styles/Contact.css */
+.contact-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.contact-container h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.contact-container .form-group {
+    margin-bottom: 15px;
+}
+
+.contact-container .form-control {
+    border-radius: 5px;
+}
+
+.contact-container .btn-primary {
+    background: linear-gradient(90deg, #007bff, #00d4ff);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}

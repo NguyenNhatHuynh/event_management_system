@@ -1,11 +1,14 @@
-// backend/routes/contractRoutes.js
+// backend/routes/contactRoutes.js
 const express = require('express');
 const router = express.Router();
-const contractController = require('../controllers/contractController');
+const contactController = require('../controllers/contactController');
 
-router.get('/', contractController.getContracts);
-router.post('/', contractController.createContract);
-router.put('/:id', contractController.updateContract);
-router.delete('/:id', contractController.deleteContract);
+// Route công khai để client gửi liên hệ
+router.post('/', contactController.createContact);
+
+// Route cho admin
+router.get('/', contactController.getContacts);
+router.patch('/:id/reply', contactController.replyContact);
+router.delete('/:id', contactController.deleteContact);
 
 module.exports = router;

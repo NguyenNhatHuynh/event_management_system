@@ -28,8 +28,6 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 200,
 };
-
-// Áp dụng CORS cho tất cả các route
 app.use(cors(corsOptions));
 
 // Middleware khác
@@ -81,6 +79,7 @@ const authRoutes = require('./routes/authRoutes');
 app.use('/api/events/public', eventPublicRoutes);
 app.use('/api/event-types/public', eventTypeRoutes);
 app.use('/api/blogs/public', blogPublicRoutes);
+app.use('/api/contacts', contactRoutes); // Route công khai để client gửi liên hệ
 
 // Các route admin được bảo vệ bằng middleware auth và adminOnly
 app.use('/api/customers', auth, adminOnly, customerRoutes);
@@ -88,7 +87,7 @@ app.use('/api/event-types', auth, adminOnly, eventTypeRoutes);
 app.use('/api/events', auth, adminOnly, eventRoutes);
 app.use('/api/contracts', auth, adminOnly, contractRoutes);
 app.use('/api/blogs', auth, adminOnly, blogRoutes);
-app.use('/api/contacts', auth, adminOnly, contactRoutes);
+app.use('/api/contacts', auth, adminOnly, contactRoutes); // Route admin để quản lý liên hệ
 app.use('/api/settings', auth, adminOnly, settingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', auth, userRoutes);
