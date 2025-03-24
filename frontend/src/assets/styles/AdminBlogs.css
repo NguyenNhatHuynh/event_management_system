@@ -1,0 +1,22 @@
+/* frontend/src/assets/styles/AdminBlogs.css */
+.quill {
+    min-height: 200px;
+    z-index: 1;
+}
+
+.ql-editor {
+    min-height: 150px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    z-index: 1;
+}
+
+.ql-container {
+    border-bottom: 1px solid #ccc !important;
+    z-index: 1;
+}
+
+.modal-body {
+    position: relative;
+    z-index: 1;
+}

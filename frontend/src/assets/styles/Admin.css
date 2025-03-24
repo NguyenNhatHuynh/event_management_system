@@ -1,3 +1,4 @@
+/* frontend/src/assets/styles/Admin.css */
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #f8f9fa;
@@ -117,17 +118,6 @@ body {
     color: #6b48ff;
 }
 
-
-
-
-
-
-
-
-
-
-
-/* frontend/src/assets/styles/Admin.css */
 .admin-container {
     padding: 20px;
 }
@@ -145,7 +135,6 @@ body {
 .admin-form .form-control {
     border-radius: 5px;
 }
-
 
 .admin-card .card-body {
     padding: 1.5rem;
@@ -199,4 +188,50 @@ body {
 .dropdown-toggle {
     min-width: 120px;
     text-align: center;
+}
+
+.add-blog-container {
+    padding: 20px;
+}
+
+.add-blog-container .quill {
+    min-height: 200px;
+    z-index: 2;
+    position: relative;
+}
+
+.add-blog-container .ql-editor {
+    min-height: 150px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    z-index: 2;
+    visibility: visible !important;
+    position: relative;
+}
+
+.add-blog-container .ql-container {
+    border-bottom: 1px solid #ccc !important;
+    z-index: 2;
+    position: relative;
+}
+
+.add-blog-container .ql-toolbar {
+    z-index: 3;
+    position: sticky;
+    top: 0;
+    background: #fff;
+}
+
+/* Đảm bảo ReactQuill không bị ẩn khi focus hoặc active */
+.add-blog-container .ql-editor:focus,
+.add-blog-container .ql-editor:active {
+    visibility: visible !important;
+    display: block !important;
+    opacity: 1 !important;
+}
+
+/* Đảm bảo container bao quanh không ảnh hưởng */
+.add-blog-container .ql-container:focus-within {
+    visibility: visible !important;
+    display: block !important;
 }

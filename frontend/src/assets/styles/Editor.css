@@ -1,0 +1,18 @@
+/* frontend/src/assets/styles/Editor.css */
+@import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+
+.editor-container {
+    padding: 20px;
+}
+
+.editor-container .rdw-editor-main {
+    min-height: 200px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #fff;
+}
+
+.editor-container .rdw-editor-toolbar {
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+}

@@ -61,7 +61,7 @@ const eventTypeRoutes = require('./routes/eventTypeRoutes');
 const { router: eventRoutes, publicRouter: eventPublicRoutes } = require('./routes/eventRoutes');
 const contractRoutes = require('./routes/contractRoutes');
 const userRoutes = require('./routes/userRoutes');
-const blogRoutes = require('./routes/blogRoutes');
+const { router: blogRoutes, publicRouter: blogPublicRoutes } = require('./routes/blogRoutes'); // Sửa lại dòng này
 const contactRoutes = require('./routes/contactRoutes');
 const settingRoutes = require('./routes/settingRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -69,13 +69,14 @@ const authRoutes = require('./routes/authRoutes');
 // Route công khai
 app.use('/api/events/public', eventPublicRoutes);
 app.use('/api/event-types/public', eventTypeRoutes);
+app.use('/api/blogs/public', blogPublicRoutes); // Thêm route công khai cho blog
 
 // Các route admin được bảo vệ bằng middleware auth và adminOnly
 app.use('/api/customers', auth, adminOnly, customerRoutes);
 app.use('/api/event-types', auth, adminOnly, eventTypeRoutes);
 app.use('/api/events', auth, adminOnly, eventRoutes);
 app.use('/api/contracts', auth, adminOnly, contractRoutes);
-app.use('/api/blogs', auth, adminOnly, blogRoutes);
+app.use('/api/blogs', auth, adminOnly, blogRoutes); // Sử dụng blogRoutes cho admin
 app.use('/api/contacts', auth, adminOnly, contactRoutes);
 app.use('/api/settings', auth, adminOnly, settingRoutes);
 app.use('/api/auth', authRoutes);

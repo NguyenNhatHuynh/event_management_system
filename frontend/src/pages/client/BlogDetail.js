@@ -1,13 +1,13 @@
 // frontend/src/pages/client/BlogDetail.js
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import '../../assets/styles/BlogDetail.css';
 
 function BlogDetail() {
     const { id } = useParams();
     const [blog, setBlog] = useState(null);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchBlog = async () => {
@@ -16,42 +16,38 @@ function BlogDetail() {
                 setBlog(response.data);
             } catch (error) {
                 console.error('Lỗi khi lấy chi tiết bài viết:', error);
-            } finally {
-                setLoading(false);
             }
         };
-
         fetchBlog();
     }, [id]);
 
-    if (loading) {
-        return <div className="text-center mt-5">Đang tải...</div>;
-    }
-
     if (!blog) {
-        return <div className="text-center mt-5">Bài viết không tồn tại</div>;
+        return <div>Loading...</div>;
     }
 
     return (
         <Container className="mt-5">
             <Row>
-                <Col md={8} className="mx-auto">
-                    <Card>
-                        {blog.image && (
-                            <Card.Img
-                                variant="top"
+                <Col>
+                    <div className="blog-detail-header">
+                        <h1 className="blog-detail-title">{blog.title}</h1>
+                        <p className="blog-detail-meta">
+                            {new Date(blog.createdAt).toLocaleDateString('vi-VN')} - {blog.category}
+                        </p>
+                    </div>
+                    {blog.image && (
+                        <div className="blog-detail-image-wrapper">
+                            <img
                                 src={`http://localhost:5000${blog.image}`}
                                 alt={blog.title}
+                                className="blog-detail-image"
                             />
-                        )}
-                        <Card.Body>
-                            <Card.Title>{blog.title}</Card.Title>
-                            <Card.Subtitle className="mb-2 text-muted">
-                                {new Date(blog.createdAt).toLocaleDateString('vi-VN')} - {blog.category}
-                            </Card.Subtitle>
-                            <Card.Text>{blog.content}</Card.Text>
-                        </Card.Body>
-                    </Card>
+                        </div>
+                    )}
+                    <div
+                        className="blog-detail-content"
+                        dangerouslySetInnerHTML={{ __html: blog.content }}
+                    />
                 </Col>
             </Row>
         </Container>

@@ -1,0 +1,25 @@
+/* frontend/src/assets/styles/AddBlog.css */
+.add-blog-container {
+    padding: 20px;
+}
+
+.add-blog-container .quill {
+    min-height: 200px;
+    z-index: 2;
+}
+
+.add-blog-container .ql-editor {
+    min-height: 150px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    z-index: 2;
+}
+
+.add-blog-container .ql-container {
+    border-bottom: 1px solid #ccc !important;
+    z-index: 2;
+}
+
+.add-blog-container .ql-toolbar {
+    z-index: 3;
+}

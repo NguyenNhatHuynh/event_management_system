@@ -21,12 +21,16 @@ import Dashboard from './pages/admin/Dashboard';
 import CustomerManagement from './pages/admin/CustomerManagement';
 import AdminEvents from './pages/admin/AdminEvents';
 import AdminEventTypes from './pages/admin/AdminEventTypes';
-import AdminBlogs from './pages/admin/Blogs';
+import AdminBlogs from './pages/admin/AdminBlogs';
 import AdminContacts from './pages/admin/Contacts';
 import AdminBookings from './pages/admin/Bookings';
 import AdminAnalytics from './pages/admin/Analytics';
 import AdminSettings from './pages/admin/Settings';
 import AdminProfile from './pages/admin/Profile';
+import BlogDetail from './pages/client/BlogDetail';
+import AddBlog from './pages/admin/AddBlog';
+import EditBlog from './pages/admin/EditBlog';
+import TestQuill from './pages/admin/TestQuill'; // Thêm import
 
 function App() {
     return (
@@ -50,6 +54,7 @@ function App() {
                     <Route path="/portfolio/:id" element={<ProjectDetail />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:id" element={<BlogDetail />} />
                     <Route path="/login" element={<Login />} />
                     <Route
                         path="/account"
@@ -75,12 +80,18 @@ function App() {
                     <Route path="events" element={<AdminEvents />} />
                     <Route path="event-types" element={<AdminEventTypes />} />
                     <Route path="blogs" element={<AdminBlogs />} />
+                    <Route path="blogs/add" element={<AddBlog />} />
+                    <Route path="blogs/edit/:id" element={<EditBlog />} />
+                    <Route path="test-quill" element={<TestQuill />} /> {/* Thêm route thử nghiệm */}
                     <Route path="contacts" element={<AdminContacts />} />
                     <Route path="bookings" element={<AdminBookings />} />
                     <Route path="analytics" element={<AdminAnalytics />} />
                     <Route path="settings" element={<AdminSettings />} />
                     <Route path="profile" element={<AdminProfile />} />
                 </Route>
+
+                {/* Route thử nghiệm không dùng AdminLayout */}
+                <Route path="/test-quill" element={<TestQuill />} />
             </Routes>
         </Router>
     );

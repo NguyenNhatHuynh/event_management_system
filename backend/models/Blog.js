@@ -5,7 +5,12 @@ const blogSchema = new mongoose.Schema({
     title: { type: String, required: true },
     content: { type: String, required: true },
     image: { type: String }, // Đường dẫn tới hình ảnh bài viết
-    category: { type: String }, // Danh mục bài viết (ví dụ: Tin tức, Hướng dẫn)
+    category: { type: String, required: true },
+    status: {
+        type: String,
+        enum: ['pending', 'approved'],
+        default: 'pending'
+    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
