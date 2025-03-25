@@ -1,5 +1,5 @@
-// backend/middleware/auth.js
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 const auth = (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -9,6 +9,9 @@ const auth = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoded.id || !mongoose.Types.ObjectId.isValid(decoded.id)) {
+            return res.status(401).json({ message: 'Token không hợp lệ: ID người dùng không hợp lệ' });
+        }
         req.user = decoded;
         next();
     } catch (error) {

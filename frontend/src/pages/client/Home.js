@@ -11,6 +11,17 @@ import SonyLogo from '../../assets/images/sony.png';
 import VietCombankLogo from '../../assets/images/vietcombank.jpeg';
 import VrbLogo from '../../assets/images/vrb.png';
 import Testimonials from '../../assets/images/testimonial-bg.png';
+import HeroEvent1 from '../../assets/images/hero-event-1.png';
+import HeroEvent2 from '../../assets/images/hero-event-2.png';
+
+
+
+import RoadShow from '../../assets/images/road-show.jpg';
+import ProductLaunch from '../../assets/images/product-launch.jpg';
+import Inauguration from '../../assets/images/inauguration.jpeg';
+import Groundbreaking from '../../assets/images/groundbreaking.jpg';
+import EventPerformance from '../../assets/images/event-performance.jpg';
+import Conference from '../../assets/images/conference.jpg';
 
 function Home() {
     return (
@@ -22,7 +33,7 @@ function Home() {
                         <div
                             className="hero-slide"
                             style={{
-                                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/assets/images/hero-event-1.jpg')`,
+                                backgroundImage: `url(${HeroEvent1})`,
                             }}
                         >
                             <Container className="h-100 d-flex flex-column justify-content-center align-items-center text-center">
@@ -38,7 +49,8 @@ function Home() {
                         <div
                             className="hero-slide"
                             style={{
-                                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/assets/images/hero-event-2.jpg')`,
+                                backgroundImage: `url(${HeroEvent2})`,
+
                             }}
                         >
                             <Container className="h-100 d-flex flex-column justify-content-center align-items-center text-center">
@@ -60,7 +72,7 @@ function Home() {
                     <Row>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src="/assets/images/road-show.jpg" />
+                                <Card.Img variant="top" src={RoadShow} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC ROAD SHOW</Card.Title>
                                     <Card.Text>Quảng bá thương hiệu hiệu quả với các chiến dịch road show sáng tạo.</Card.Text>
@@ -69,7 +81,7 @@ function Home() {
                         </Col>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src="/assets/images/event-performance.jpg" />
+                                <Card.Img variant="top" src={EventPerformance} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC BIỂU DIỄN NGHỆ THUẬT</Card.Title>
                                     <Card.Text>Mang đến những màn trình diễn nghệ thuật ấn tượng và độc đáo.</Card.Text>
@@ -78,7 +90,7 @@ function Home() {
                         </Col>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src="/assets/images/inauguration.jpg" />
+                                <Card.Img variant="top" src={Inauguration} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC KHAI TRƯƠNG - KHÁNH THÀNH</Card.Title>
                                     <Card.Text>Tạo dấu ấn cho sự kiện khai trương hoặc khánh thành của bạn.</Card.Text>
@@ -87,7 +99,7 @@ function Home() {
                         </Col>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src="/assets/images/product-launch.jpg" />
+                                <Card.Img variant="top" src={ProductLaunch} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC LỄ RA MẮT SẢN PHẨM MỚI</Card.Title>
                                     <Card.Text>Giới thiệu sản phẩm mới với sự kiện hoành tráng và chuyên nghiệp.</Card.Text>
@@ -96,7 +108,7 @@ function Home() {
                         </Col>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src="/assets/images/groundbreaking.jpg" />
+                                <Card.Img variant="top" src={Groundbreaking} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC KHỞI CÔNG - ĐỘNG THỔ</Card.Title>
                                     <Card.Text>Đánh dấu khởi đầu dự án với sự kiện ý nghĩa và trang trọng.</Card.Text>
@@ -105,7 +117,7 @@ function Home() {
                         </Col>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src="/assets/images/conference.jpg" />
+                                <Card.Img variant="top" src={Conference} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC HỘI NGHỊ - HỘI THẢO</Card.Title>
                                     <Card.Text>Tổ chức hội nghị chuyên nghiệp, đảm bảo thành công cho sự kiện.</Card.Text>

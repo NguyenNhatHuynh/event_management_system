@@ -103,7 +103,7 @@ app.use('/api/blogs/public', blogPublicRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/bookings', bookingRoutes);
 
-// Các route admin được bảo vệ bằng middleware auth và adminOnly
+// Các route được bảo vệ bằng middleware auth và adminOnly
 app.use('/api/customers', auth, adminOnly, customerRoutes);
 app.use('/api/event-types', auth, adminOnly, eventTypeRoutes);
 app.use('/api/events', auth, adminOnly, eventRoutes);
@@ -112,7 +112,7 @@ app.use('/api/blogs', auth, adminOnly, blogRoutes);
 app.use('/api/contacts', auth, adminOnly, contactRoutes);
 app.use('/api/settings', auth, adminOnly, settingRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/users', auth, userRoutes);
+app.use('/api/users', userRoutes); // Đã có middleware auth trong userRoutes
 app.use('/api/dashboard', auth, adminOnly, dashboardRoutes);
 
 // Route cơ bản để kiểm tra API
@@ -145,9 +145,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-
-
-
 
 
 
