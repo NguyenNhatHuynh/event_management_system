@@ -1,10 +1,10 @@
 // frontend/src/pages/admin/AdminEvents.js
 import React, { useEffect, useState, useRef } from 'react';
-import { Container, Row, Col, Card, Table, Form, Button, Modal, Dropdown, Pagination, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Form, Button, Modal, Pagination, OverlayTrigger, Tooltip, Dropdown } from 'react-bootstrap';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaEdit, FaTrash } from 'react-icons/fa'; // Thêm biểu tượng từ react-icons
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import '../../assets/styles/Admin.css';
 
 function AdminEvents() {
@@ -23,10 +23,10 @@ function AdminEvents() {
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState('');
     const fileInputRef = useRef(null);
-    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-    const [totalPages, setTotalPages] = useState(1); // Tổng số trang
-    const [totalEvents, setTotalEvents] = useState(0); // Tổng số sự kiện
-    const limit = 3; // Số lượng sự kiện trên mỗi trang
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalEvents, setTotalEvents] = useState(0);
+    const limit = 3;
 
     const fetchEvents = async (page = 1) => {
         try {
@@ -39,13 +39,14 @@ function AdminEvents() {
                 }
             );
             console.log('Events data:', response.data);
-            setEvents(response.data.events);
+            setEvents(response.data.events || []);
             setCurrentPage(response.data.currentPage || 1);
             setTotalPages(response.data.totalPages || 1);
             setTotalEvents(response.data.totalEvents || 0);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sự kiện:', error);
             toast.error('Lấy danh sách sự kiện thất bại');
+            setEvents([]);
         }
     };
 
@@ -56,17 +57,19 @@ function AdminEvents() {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             });
-            setEventTypes(response.data);
+            console.log('Event types data:', response.data);
+            setEventTypes(response.data.eventTypes || []);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
             toast.error('Lấy danh sách loại sự kiện thất bại');
+            setEventTypes([]);
         }
     };
 
     useEffect(() => {
         fetchEvents(currentPage);
         fetchEventTypes();
-    }, [currentPage]); // Gọi lại fetchEvents khi currentPage thay đổi
+    }, [currentPage]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -96,7 +99,7 @@ function AdminEvents() {
             setFormData({ name: '', eventType: '', date: '', location: '', description: '', status: 'Đang chờ', image: null });
             fileInputRef.current.value = '';
             toast.success('Thêm sự kiện thành công!');
-            fetchEvents(currentPage); // Làm mới danh sách sau khi thêm
+            fetchEvents(currentPage);
         } catch (error) {
             console.error('Lỗi khi thêm sự kiện:', error);
             setError(error.response?.data?.message || 'Thêm sự kiện thất bại');
@@ -146,7 +149,7 @@ function AdminEvents() {
             setEvents(events.map((event) => (event._id === editFormData._id ? response.data : event)));
             setShowModal(false);
             toast.success('Cập nhật sự kiện thành công!');
-            fetchEvents(currentPage); // Làm mới danh sách sau khi cập nhật
+            fetchEvents(currentPage);
         } catch (error) {
             console.error('Lỗi khi cập nhật sự kiện:', error);
             setError(error.response?.data?.message || 'Cập nhật sự kiện thất bại');
@@ -164,7 +167,7 @@ function AdminEvents() {
                 });
                 setEvents(events.filter((event) => event._id !== id));
                 toast.success('Xóa sự kiện thành công!');
-                fetchEvents(currentPage); // Làm mới danh sách sau khi xóa
+                fetchEvents(currentPage);
             } catch (error) {
                 console.error('Lỗi khi xóa sự kiện:', error);
                 toast.error(error.response?.data?.message || 'Xóa sự kiện thất bại');
@@ -185,18 +188,17 @@ function AdminEvents() {
             );
             setEvents(events.map((event) => (event._id === id ? response.data : event)));
             toast.success('Cập nhật trạng thái thành công!');
-            fetchEvents(currentPage); // Làm mới danh sách sau khi cập nhật trạng thái
+            fetchEvents(currentPage);
         } catch (error) {
             console.error('Lỗi khi cập nhật trạng thái:', error);
             toast.error(error.response?.data?.message || 'Cập nhật trạng thái thất bại');
         }
     };
 
-    // Hàm chuyển trang
     const handlePageChange = (pageNumber) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
-            window.scrollTo(0, 0); // Cuộn lên đầu trang khi chuyển trang
+            window.scrollTo(0, 0);
         }
     };
 
@@ -435,7 +437,6 @@ function AdminEvents() {
                                 </tbody>
                             </Table>
 
-                            {/* Phân trang */}
                             {totalEvents > 0 && (
                                 <Row className="mt-4">
                                     <Col className="d-flex justify-content-between align-items-center">

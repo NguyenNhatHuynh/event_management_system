@@ -1,9 +1,10 @@
 // frontend/src/pages/admin/AdminEventTypes.js
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Table, Form, Button, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Form, Button, Modal, Pagination, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import '../../assets/styles/Admin.css';
 
 function AdminEventTypes() {
@@ -16,32 +17,41 @@ function AdminEventTypes() {
     const [editFormData, setEditFormData] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalEventTypes, setTotalEventTypes] = useState(0);
+    const limit = 6;
 
-    // Lấy danh sách loại sự kiện
-    const fetchEventTypes = async () => {
+    const fetchEventTypes = async (page = 1) => {
         try {
-            const response = await axios.get('http://localhost:5000/api/event-types', {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            });
-            setEventTypes(response.data);
+            const response = await axios.get(
+                `/api/event-types?page=${page}&limit=${limit}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                }
+            );
+            setEventTypes(response.data.eventTypes || []);
+            setCurrentPage(response.data.currentPage || 1);
+            setTotalPages(response.data.totalPages || 1);
+            setTotalEventTypes(response.data.totalEventTypes || 0);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
             toast.error('Lấy danh sách loại sự kiện thất bại');
+            setEventTypes([]);
         }
     };
 
     useEffect(() => {
-        fetchEventTypes();
-    }, []);
+        fetchEventTypes(currentPage);
+    }, [currentPage]);
 
-    // Thêm loại sự kiện
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         try {
-            const response = await axios.post('http://localhost:5000/api/event-types', formData, {
+            const response = await axios.post('/api/event-types', formData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -49,7 +59,7 @@ function AdminEventTypes() {
             setEventTypes([...eventTypes, response.data]);
             setFormData({ typeCode: '', name: '', description: '' });
             toast.success('Thêm loại sự kiện thành công!');
-            fetchEventTypes();
+            fetchEventTypes(currentPage);
         } catch (error) {
             console.error('Lỗi khi thêm loại sự kiện:', error);
             setError(error.response?.data?.message || 'Thêm loại sự kiện thất bại');
@@ -57,7 +67,6 @@ function AdminEventTypes() {
         }
     };
 
-    // Mở modal chỉnh sửa
     const handleEdit = (eventType) => {
         setEditFormData({
             _id: eventType._id,
@@ -68,13 +77,12 @@ function AdminEventTypes() {
         setShowModal(true);
     };
 
-    // Cập nhật loại sự kiện
     const handleUpdate = async (e) => {
         e.preventDefault();
         setError('');
         try {
             const response = await axios.put(
-                `http://localhost:5000/api/event-types/${editFormData._id}`,
+                `/api/event-types/${editFormData._id}`,
                 editFormData,
                 {
                     headers: {
@@ -87,7 +95,7 @@ function AdminEventTypes() {
             );
             setShowModal(false);
             toast.success('Cập nhật loại sự kiện thành công!');
-            fetchEventTypes();
+            fetchEventTypes(currentPage);
         } catch (error) {
             console.error('Lỗi khi cập nhật loại sự kiện:', error);
             setError(error.response?.data?.message || 'Cập nhật loại sự kiện thất bại');
@@ -95,22 +103,28 @@ function AdminEventTypes() {
         }
     };
 
-    // Xóa loại sự kiện
     const handleDelete = async (id) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa loại sự kiện này?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/event-types/${id}`, {
+                await axios.delete(`/api/event-types/${id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
                 });
                 setEventTypes(eventTypes.filter((type) => type._id !== id));
                 toast.success('Xóa loại sự kiện thành công!');
-                fetchEventTypes();
+                fetchEventTypes(currentPage);
             } catch (error) {
                 console.error('Lỗi khi xóa loại sự kiện:', error);
                 toast.error(error.response?.data?.message || 'Xóa loại sự kiện thất bại');
             }
+        }
+    };
+
+    const handlePageChange = (pageNumber) => {
+        if (pageNumber >= 1 && pageNumber <= totalPages) {
+            setCurrentPage(pageNumber);
+            window.scrollTo(0, 0);
         }
     };
 
@@ -184,6 +198,7 @@ function AdminEventTypes() {
                             <Table striped bordered hover responsive>
                                 <thead>
                                     <tr>
+                                        <th>#</th>
                                         <th>Mã loại sự kiện</th>
                                         <th>Tên loại sự kiện</th>
                                         <th>Mô tả</th>
@@ -191,38 +206,84 @@ function AdminEventTypes() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {eventTypes.map((type) => (
+                                    {eventTypes.map((type, index) => (
                                         <tr key={type._id}>
+                                            <td>{(currentPage - 1) * limit + index + 1}</td>
                                             <td>{type.typeCode}</td>
                                             <td>{type.name}</td>
                                             <td>{type.description || '-'}</td>
                                             <td>
-                                                <Button
-                                                    variant="outline-primary"
-                                                    size="sm"
-                                                    className="me-2"
-                                                    onClick={() => handleEdit(type)}
+                                                <OverlayTrigger
+                                                    placement="top"
+                                                    overlay={<Tooltip id="edit-tooltip">Sửa</Tooltip>}
                                                 >
-                                                    Sửa
-                                                </Button>
-                                                <Button
-                                                    variant="outline-danger"
-                                                    size="sm"
-                                                    onClick={() => handleDelete(type._id)}
+                                                    <Button
+                                                        variant="link"
+                                                        className="action-btn edit-btn"
+                                                        onClick={() => handleEdit(type)}
+                                                    >
+                                                        <FaEdit />
+                                                    </Button>
+                                                </OverlayTrigger>
+                                                <OverlayTrigger
+                                                    placement="top"
+                                                    overlay={<Tooltip id="delete-tooltip">Xóa</Tooltip>}
                                                 >
-                                                    Xóa
-                                                </Button>
+                                                    <Button
+                                                        variant="link"
+                                                        className="action-btn delete-btn"
+                                                        onClick={() => handleDelete(type._id)}
+                                                    >
+                                                        <FaTrash />
+                                                    </Button>
+                                                </OverlayTrigger>
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </Table>
+
+                            {totalEventTypes > 0 && (
+                                <Row className="mt-4">
+                                    <Col className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            Tổng số loại sự kiện: {totalEventTypes}
+                                        </div>
+                                        <Pagination>
+                                            <Pagination.First
+                                                onClick={() => handlePageChange(1)}
+                                                disabled={currentPage === 1}
+                                            />
+                                            <Pagination.Prev
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                            />
+                                            {[...Array(totalPages).keys()].map((page) => (
+                                                <Pagination.Item
+                                                    key={page + 1}
+                                                    active={page + 1 === currentPage}
+                                                    onClick={() => handlePageChange(page + 1)}
+                                                >
+                                                    {page + 1}
+                                                </Pagination.Item>
+                                            ))}
+                                            <Pagination.Next
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                            />
+                                            <Pagination.Last
+                                                onClick={() => handlePageChange(totalPages)}
+                                                disabled={currentPage === totalPages}
+                                            />
+                                        </Pagination>
+                                    </Col>
+                                </Row>
+                            )}
                         </Card.Body>
                     </Card>
                 </Col>
             </Row>
 
-            {/* Modal chỉnh sửa loại sự kiện */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Chỉnh sửa loại sự kiện</Modal.Title>
