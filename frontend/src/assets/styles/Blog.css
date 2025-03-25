@@ -60,3 +60,23 @@
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
 }
+
+
+
+.blog-container .pagination {
+    justify-content: center;
+}
+
+.blog-container .pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.blog-container .pagination .page-link {
+    color: #007bff;
+}
+
+.blog-container .pagination .page-link:hover {
+    background-color: #e9ecef;
+}
