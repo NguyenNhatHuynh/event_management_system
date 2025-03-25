@@ -13,11 +13,28 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Lấy tất cả liên hệ (cho admin)
+// Lấy tất cả liên hệ (cho admin) với phân trang
 exports.getContacts = async (req, res) => {
     try {
-        const contacts = await Contact.find().sort({ createdAt: -1 });
-        res.json(contacts);
+        const page = parseInt(req.query.page) || 1; // Trang hiện tại, mặc định là 1
+        const limit = parseInt(req.query.limit) || 5; // Số lượng liên hệ trên mỗi trang, mặc định là 5
+        const skip = (page - 1) * limit; // Số liên hệ cần bỏ qua
+
+        // Lấy tổng số liên hệ
+        const totalContacts = await Contact.countDocuments();
+
+        // Lấy danh sách liên hệ với phân trang
+        const contacts = await Contact.find()
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 }); // Sắp xếp theo ngày tạo, mới nhất trước
+
+        res.json({
+            contacts,
+            currentPage: page,
+            totalPages: Math.ceil(totalContacts / limit),
+            totalContacts,
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
