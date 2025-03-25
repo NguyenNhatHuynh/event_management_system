@@ -208,7 +208,7 @@ function Home() {
                         <Col md={3} className="mb-4">
                             <h5>GIỚI THIỆU</h5>
                             <p>
-                                CÔNG TY TNHH QUẢNG CÁO VÀ TỔ CHỨC SỰ KIỆN ĐẠI DƯƠNG được thành lập năm 1993. Là đơn vị hàng đầu trong ngành xây dựng Việt Nam.
+                                CÔNG TY TNHH QUẢNG CÁO VÀ TỔ CHỨC SỰ EVENTPRO được thành lập năm 2000. Là đơn vị hàng đầu trong ngành tổ chức sự kiện ở Việt Nam.
                             </p>
                             <div className="social-icons">
                                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
@@ -225,19 +225,18 @@ function Home() {
                         <Col md={3} className="mb-4">
                             <h5>TRỤ SỞ HÀ NỘI</h5>
                             <p>
-                                Địa chỉ: Số 4 ngõ 364, ngách 94 hẻm 6 đường Giải Phóng, Phường Thịnh Liệt, Quận Hoàng Mai, Thành phố Hà Nội, Việt Nam.
+                                Địa chỉ: Đ. Nguyễn Khuyến, Khu Phố 5, Biên Hòa, Đồng Nai, Việt Nam
                             </p>
                         </Col>
                         <Col md={3} className="mb-4">
                             <h5>BẢN ĐỒ</h5>
-                            <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.729174263614!2d105.839987314692!3d20.999999994231!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ac810b8c8e1d%3A0x5c5e7b3b5b5b5b5b!2sHà%20Nội%2C%20Vietnam!5e0!3m2!1sen!2s!4v1634567890123!5m2!1sen!2s"
+
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4013.6192971240957!2d106.8687347!3d10.984400599999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174ddb237f9dd59%3A0x3ff1538c511f05d7!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBDw7RuZyBOZ2jhu4cgxJDhu5NuZyBOYWk!5e1!3m2!1svi!2s!4v1742874972778!5m2!1svi!2s"
                                 width="100%"
                                 height="200"
                                 style={{ border: 0 }}
                                 allowFullScreen=""
-                                loading="lazy"
-                            ></iframe>
+                                loading="lazy"></iframe>
                         </Col>
                         <Col md={3} className="mb-4">
                             <h5>LỊCH LÀM VIỆC</h5>
