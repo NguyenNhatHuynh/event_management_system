@@ -86,7 +86,7 @@ function ProjectDetail() {
                 <Container style={{ position: 'relative', zIndex: 2 }}>
                     <h1 className="display-4">{event.name}</h1>
                     <p className="lead">{event.location}</p>
-                    <Button variant="primary" size="lg" href="/contact" className="mt-3">
+                    <Button variant="primary" size="lg" href="/booking" className="mt-3">
                         Đặt lịch ngay
                     </Button>
                 </Container>

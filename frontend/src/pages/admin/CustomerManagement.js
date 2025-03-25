@@ -1,4 +1,3 @@
-// frontend/src/pages/admin/CustomerManagement.js
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Table, Form, Button, Nav, Modal } from 'react-bootstrap';
 import axios from 'axios';
@@ -7,27 +6,30 @@ import 'react-toastify/dist/ReactToastify.css';
 import '../../assets/styles/Admin.css';
 
 function CustomerManagement() {
-    const [customers, setCustomers] = useState([]);
+    const [users, setUsers] = useState([]);
     const [formData, setFormData] = useState({
-        customerCode: '',
+        username: '',
+        email: '',
+        password: '',
         fullName: '',
         phone: '',
-        email: '',
         address: '',
     });
     const [editFormData, setEditFormData] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState('');
 
-    // Lấy danh sách khách hàng
-    const fetchCustomers = async () => {
+    // Lấy danh sách người dùng
+    const fetchUsers = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/customers', {
+            const response = await axios.get('http://localhost:5000/api/users', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             });
-            setCustomers(response.data);
+            // Lọc chỉ lấy người dùng có vai trò là "customer"
+            const customers = response.data.filter((user) => user.role === 'customer');
+            setUsers(customers);
         } catch (error) {
             console.error(error);
             toast.error('Lấy danh sách khách hàng thất bại');
@@ -35,41 +37,48 @@ function CustomerManagement() {
     };
 
     useEffect(() => {
-        fetchCustomers();
+        fetchUsers();
     }, []);
 
-    // Thêm khách hàng
+    // Thêm tài khoản khách hàng mới
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         try {
-            const response = await axios.post('http://localhost:5000/api/customers', formData, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+            const response = await axios.post(
+                'http://localhost:5000/api/users',
+                {
+                    ...formData,
+                    role: 'customer', // Đảm bảo vai trò là customer
                 },
-            });
-            setCustomers([...customers, response.data]);
-            setFormData({ customerCode: '', fullName: '', phone: '', email: '', address: '' });
-            toast.success('Thêm khách hàng thành công!');
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                }
+            );
+            setUsers([...users, response.data]);
+            setFormData({ username: '', email: '', password: '', fullName: '', phone: '', address: '' });
+            toast.success('Thêm tài khoản khách hàng thành công!');
         } catch (error) {
-            setError(error.response?.data?.message || 'Thêm khách hàng thất bại');
-            toast.error(error.response?.data?.message || 'Thêm khách hàng thất bại');
+            setError(error.response?.data?.message || 'Thêm tài khoản khách hàng thất bại');
+            toast.error(error.response?.data?.message || 'Thêm tài khoản khách hàng thất bại');
         }
     };
 
     // Mở modal chỉnh sửa
-    const handleEdit = (customer) => {
-        setEditFormData(customer);
+    const handleEdit = (user) => {
+        setEditFormData(user);
         setShowModal(true);
     };
 
-    // Cập nhật khách hàng
+    // Cập nhật thông tin khách hàng
     const handleUpdate = async (e) => {
         e.preventDefault();
         setError('');
         try {
             const response = await axios.put(
-                `http://localhost:5000/api/customers/${editFormData._id}`,
+                `http://localhost:5000/api/users/${editFormData._id}`,
                 editFormData,
                 {
                     headers: {
@@ -77,32 +86,32 @@ function CustomerManagement() {
                     },
                 }
             );
-            setCustomers(
-                customers.map((customer) =>
-                    customer._id === editFormData._id ? response.data : customer
+            setUsers(
+                users.map((user) =>
+                    user._id === editFormData._id ? response.data : user
                 )
             );
             setShowModal(false);
-            toast.success('Cập nhật khách hàng thành công!');
+            toast.success('Cập nhật thông tin khách hàng thành công!');
         } catch (error) {
-            setError(error.response?.data?.message || 'Cập nhật khách hàng thất bại');
-            toast.error(error.response?.data?.message || 'Cập nhật khách hàng thất bại');
+            setError(error.response?.data?.message || 'Cập nhật thông tin khách hàng thất bại');
+            toast.error(error.response?.data?.message || 'Cập nhật thông tin khách hàng thất bại');
         }
     };
 
-    // Xóa khách hàng
+    // Xóa tài khoản khách hàng
     const handleDelete = async (id) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa khách hàng này?')) {
+        if (window.confirm('Bạn có chắc chắn muốn xóa tài khoản khách hàng này?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/customers/${id}`, {
+                await axios.delete(`http://localhost:5000/api/users/${id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
                 });
-                setCustomers(customers.filter((customer) => customer._id !== id));
-                toast.success('Xóa khách hàng thành công!');
+                setUsers(users.filter((user) => user._id !== id));
+                toast.success('Xóa tài khoản khách hàng thành công!');
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Xóa khách hàng thất bại');
+                toast.error(error.response?.data?.message || 'Xóa tài khoản khách hàng thất bại');
             }
         }
     };
@@ -117,7 +126,7 @@ function CustomerManagement() {
                             Dashboard
                         </Nav.Link>
                         <Nav.Link as="a" href="/admin/users">
-                            Customer Management
+                            Quản lý khách hàng
                         </Nav.Link>
                     </Nav>
                 </Col>
@@ -132,40 +141,14 @@ function CustomerManagement() {
                             )}
                             <Form onSubmit={handleSubmit}>
                                 <Row>
-                                    <Col md={2}>
-                                        <Form.Group>
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Mã khách hàng"
-                                                value={formData.customerCode}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, customerCode: e.target.value })
-                                                }
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Col>
                                     <Col md={3}>
                                         <Form.Group>
                                             <Form.Control
                                                 type="text"
-                                                placeholder="Họ và tên"
-                                                value={formData.fullName}
+                                                placeholder="Tên người dùng"
+                                                value={formData.username}
                                                 onChange={(e) =>
-                                                    setFormData({ ...formData, fullName: e.target.value })
-                                                }
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={2}>
-                                        <Form.Group>
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Số điện thoại"
-                                                value={formData.phone}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, phone: e.target.value })
+                                                    setFormData({ ...formData, username: e.target.value })
                                                 }
                                                 required
                                             />
@@ -175,22 +158,55 @@ function CustomerManagement() {
                                         <Form.Group>
                                             <Form.Control
                                                 type="email"
-                                                placeholder="Email (tùy chọn)"
+                                                placeholder="Email"
                                                 value={formData.email}
                                                 onChange={(e) =>
                                                     setFormData({ ...formData, email: e.target.value })
                                                 }
+                                                required
                                             />
                                         </Form.Group>
                                     </Col>
-                                    <Col md={2}>
-                                        <Button type="submit" variant="primary">
-                                            Thêm khách hàng
-                                        </Button>
+                                    <Col md={3}>
+                                        <Form.Group>
+                                            <Form.Control
+                                                type="password"
+                                                placeholder="Mật khẩu"
+                                                value={formData.password}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, password: e.target.value })
+                                                }
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={3}>
+                                        <Form.Group>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Họ và tên (tùy chọn)"
+                                                value={formData.fullName}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, fullName: e.target.value })
+                                                }
+                                            />
+                                        </Form.Group>
                                     </Col>
                                 </Row>
                                 <Row className="mt-3">
-                                    <Col md={12}>
+                                    <Col md={3}>
+                                        <Form.Group>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Số điện thoại (tùy chọn)"
+                                                value={formData.phone}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, phone: e.target.value })
+                                                }
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={7}>
                                         <Form.Group>
                                             <Form.Control
                                                 type="text"
@@ -202,6 +218,11 @@ function CustomerManagement() {
                                             />
                                         </Form.Group>
                                     </Col>
+                                    <Col md={2}>
+                                        <Button type="submit" variant="primary">
+                                            Thêm khách hàng
+                                        </Button>
+                                    </Col>
                                 </Row>
                             </Form>
                         </Card.Body>
@@ -211,35 +232,37 @@ function CustomerManagement() {
                             <Table striped bordered hover responsive>
                                 <thead>
                                     <tr>
-                                        <th>Mã khách hàng</th>
+                                        <th>Tên người dùng</th>
                                         <th>Họ và tên</th>
-                                        <th>Số điện thoại</th>
                                         <th>Email</th>
+                                        <th>Số điện thoại</th>
                                         <th>Địa chỉ</th>
+                                        <th>Vai trò</th>
                                         <th>Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {customers.map((customer) => (
-                                        <tr key={customer._id}>
-                                            <td>{customer.customerCode}</td>
-                                            <td>{customer.fullName}</td>
-                                            <td>{customer.phone}</td>
-                                            <td>{customer.email || '-'}</td>
-                                            <td>{customer.address || '-'}</td>
+                                    {users.map((user) => (
+                                        <tr key={user._id}>
+                                            <td>{user.username}</td>
+                                            <td>{user.fullName || '-'}</td>
+                                            <td>{user.email}</td>
+                                            <td>{user.phone || '-'}</td>
+                                            <td>{user.address || '-'}</td>
+                                            <td>{user.role}</td>
                                             <td>
                                                 <Button
                                                     variant="outline-primary"
                                                     size="sm"
                                                     className="me-2"
-                                                    onClick={() => handleEdit(customer)}
+                                                    onClick={() => handleEdit(user)}
                                                 >
                                                     Sửa
                                                 </Button>
                                                 <Button
                                                     variant="outline-danger"
                                                     size="sm"
-                                                    onClick={() => handleDelete(customer._id)}
+                                                    onClick={() => handleDelete(user._id)}
                                                 >
                                                     Xóa
                                                 </Button>
@@ -256,7 +279,7 @@ function CustomerManagement() {
             {/* Modal chỉnh sửa khách hàng */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Chỉnh sửa khách hàng</Modal.Title>
+                    <Modal.Title>Chỉnh sửa thông tin khách hàng</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {error && (
@@ -267,12 +290,12 @@ function CustomerManagement() {
                     {editFormData && (
                         <Form onSubmit={handleUpdate}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Mã khách hàng</Form.Label>
+                                <Form.Label>Tên người dùng</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={editFormData.customerCode}
+                                    value={editFormData.username}
                                     onChange={(e) =>
-                                        setEditFormData({ ...editFormData, customerCode: e.target.value })
+                                        setEditFormData({ ...editFormData, username: e.target.value })
                                     }
                                     required
                                 />
@@ -281,9 +304,19 @@ function CustomerManagement() {
                                 <Form.Label>Họ và tên</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={editFormData.fullName}
+                                    value={editFormData.fullName || ''}
                                     onChange={(e) =>
                                         setEditFormData({ ...editFormData, fullName: e.target.value })
+                                    }
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    value={editFormData.email}
+                                    onChange={(e) =>
+                                        setEditFormData({ ...editFormData, email: e.target.value })
                                     }
                                     required
                                 />
@@ -292,20 +325,9 @@ function CustomerManagement() {
                                 <Form.Label>Số điện thoại</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={editFormData.phone}
+                                    value={editFormData.phone || ''}
                                     onChange={(e) =>
                                         setEditFormData({ ...editFormData, phone: e.target.value })
-                                    }
-                                    required
-                                />
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Email</Form.Label>
-                                <Form.Control
-                                    type="email"
-                                    value={editFormData.email || ''}
-                                    onChange={(e) =>
-                                        setEditFormData({ ...editFormData, email: e.target.value })
                                     }
                                 />
                             </Form.Group>

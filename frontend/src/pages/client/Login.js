@@ -1,4 +1,3 @@
-// frontend/src/pages/client/Login.js
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Tabs, Tab, Alert } from 'react-bootstrap';
 import axios from 'axios';
@@ -52,6 +51,7 @@ function Login() {
                 name: signupData.name,
                 email: signupData.email,
                 password: signupData.password,
+                role: 'customer', // Thêm trường role để đảm bảo
             });
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
