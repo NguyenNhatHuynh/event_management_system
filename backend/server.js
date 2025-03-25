@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const { auth, adminOnly } = require('./middleware/auth');
 const path = require('path');
+const Setting = require('./models/Setting'); // Thêm import model Setting
 
 // Load biến môi trường từ file .env
 dotenv.config();
@@ -19,6 +20,25 @@ connectDB().catch((error) => {
     console.error('Failed to connect to MongoDB:', error);
     process.exit(1);
 });
+
+// Khởi tạo cài đặt mặc định
+const initializeSettings = async () => {
+    try {
+        const settingExists = await Setting.findOne();
+        if (!settingExists) {
+            const defaultSettings = new Setting({
+                siteName: 'Event Management System',
+                contactEmail: 'contact@example.com',
+                contactPhone: '0123 456 789',
+                logo: '', // Đường dẫn logo mặc định (có thể để trống)
+            });
+            await defaultSettings.save();
+            console.log('Cài đặt mặc định đã được tạo!');
+        }
+    } catch (error) {
+        console.error('Lỗi khi tạo cài đặt mặc định:', error);
+    }
+};
 
 // Middleware CORS
 const corsOptions = {
@@ -74,14 +94,14 @@ const contactRoutes = require('./routes/contactRoutes');
 const settingRoutes = require('./routes/settingRoutes');
 const authRoutes = require('./routes/authRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
-const dashboardRoutes = require('./routes/dashboardRoutes'); // Thêm route cho dashboard
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 // Route công khai
 app.use('/api/events/public', eventPublicRoutes);
 app.use('/api/event-types/public', eventTypeRoutes);
 app.use('/api/blogs/public', blogPublicRoutes);
-app.use('/api/contacts', contactRoutes); // Route công khai để client gửi liên hệ
-app.use('/api/bookings', bookingRoutes); // Route cho đặt lịch (công khai và bảo vệ)
+app.use('/api/contacts', contactRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Các route admin được bảo vệ bằng middleware auth và adminOnly
 app.use('/api/customers', auth, adminOnly, customerRoutes);
@@ -89,11 +109,11 @@ app.use('/api/event-types', auth, adminOnly, eventTypeRoutes);
 app.use('/api/events', auth, adminOnly, eventRoutes);
 app.use('/api/contracts', auth, adminOnly, contractRoutes);
 app.use('/api/blogs', auth, adminOnly, blogRoutes);
-app.use('/api/contacts', auth, adminOnly, contactRoutes); // Route admin để quản lý liên hệ
+app.use('/api/contacts', auth, adminOnly, contactRoutes);
 app.use('/api/settings', auth, adminOnly, settingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', auth, userRoutes);
-app.use('/api/dashboard', auth, adminOnly, dashboardRoutes); // Thêm route cho dashboard
+app.use('/api/dashboard', auth, adminOnly, dashboardRoutes);
 
 // Route cơ bản để kiểm tra API
 app.get('/', (req, res) => {
@@ -113,7 +133,14 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Khởi động server
+// Khởi động server và khởi tạo cài đặt
+connectDB().then(() => {
+    initializeSettings(); // Gọi hàm khởi tạo cài đặt
+}).catch((error) => {
+    console.error('Failed to connect to MongoDB:', error);
+    process.exit(1);
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
