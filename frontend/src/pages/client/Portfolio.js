@@ -1,6 +1,5 @@
-// frontend/src/pages/client/Portfolio.js
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Pagination } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import '../../assets/styles/Client.css';
@@ -8,6 +7,8 @@ import '../../assets/styles/Client.css';
 function Portfolio() {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1); // State để theo dõi trang hiện tại
+    const eventsPerPage = 6; // Số lượng sự kiện trên mỗi trang
     const location = useLocation();
 
     const queryParams = new URLSearchParams(location.search);
@@ -24,6 +25,7 @@ function Portfolio() {
             const response = await axios.get(url);
             console.log('Public events data:', response.data);
             setEvents(response.data);
+            setCurrentPage(1); // Reset về trang 1 khi dữ liệu thay đổi
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sự kiện:', error);
         } finally {
@@ -34,6 +36,20 @@ function Portfolio() {
     useEffect(() => {
         fetchEvents();
     }, [typeCode]);
+
+    // Tính toán các sự kiện cần hiển thị trên trang hiện tại
+    const indexOfLastEvent = currentPage * eventsPerPage;
+    const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+    const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
+
+    // Tính tổng số trang
+    const totalPages = Math.ceil(events.length / eventsPerPage);
+
+    // Hàm chuyển trang
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo(0, 0); // Cuộn lên đầu trang khi chuyển trang
+    };
 
     return (
         <div className="portfolio-page">
@@ -58,8 +74,8 @@ function Portfolio() {
                             <Col>
                                 <p className="text-center">Đang tải...</p>
                             </Col>
-                        ) : events.length > 0 ? (
-                            events.map((event) => (
+                        ) : currentEvents.length > 0 ? (
+                            currentEvents.map((event) => (
                                 <Col md={4} key={event._id} className="mb-4">
                                     <Card className="portfolio-card shadow-sm h-100 d-flex flex-column">
                                         <Card.Img
@@ -111,6 +127,33 @@ function Portfolio() {
                             </Col>
                         )}
                     </Row>
+
+                    {/* Phân trang */}
+                    {events.length > 0 && (
+                        <Row className="mt-4">
+                            <Col className="d-flex justify-content-center">
+                                <Pagination>
+                                    <Pagination.Prev
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                    />
+                                    {[...Array(totalPages)].map((_, index) => (
+                                        <Pagination.Item
+                                            key={index + 1}
+                                            active={index + 1 === currentPage}
+                                            onClick={() => handlePageChange(index + 1)}
+                                        >
+                                            {index + 1}
+                                        </Pagination.Item>
+                                    ))}
+                                    <Pagination.Next
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                    />
+                                </Pagination>
+                            </Col>
+                        </Row>
+                    )}
                 </Container>
             </section>
         </div>

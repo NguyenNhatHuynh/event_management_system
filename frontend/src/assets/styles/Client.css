@@ -1534,3 +1534,114 @@ body {
     flex-direction: column;
     justify-content: space-between;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* frontend/src/assets/styles/Client.css */
+.about-header-section {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.about-header-section h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.about-header-section .lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+    opacity: 0.9;
+}
+
+.about-section {
+    padding: 80px 0;
+}
+
+.about-section h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.about-section p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #666;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.img-fluid.rounded {
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.img-fluid.rounded:hover {
+    transform: scale(1.05);
+}
+
+.cta-button {
+    background-color: #2a5298;
+    border: none;
+    padding: 10px 25px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #1e3c72;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .about-header-section {
+        padding: 40px 0;
+    }
+
+    .about-header-section h1 {
+        font-size: 2rem;
+    }
+
+    .about-section {
+        padding: 50px 0;
+    }
+
+    .about-section h2 {
+        font-size: 1.75rem;
+    }
+
+    .about-section p {
+        font-size: 1rem;
+    }
+}
