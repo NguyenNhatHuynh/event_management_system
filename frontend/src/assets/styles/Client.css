@@ -1645,3 +1645,33 @@ body {
         font-size: 1rem;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+.portfolio-content .pagination {
+    justify-content: center;
+}
+
+.portfolio-content .pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.portfolio-content .pagination .page-link {
+    color: #007bff;
+}
+
+.portfolio-content .pagination .page-link:hover {
+    background-color: #e9ecef;
+}

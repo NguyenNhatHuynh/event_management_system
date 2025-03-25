@@ -33,10 +33,10 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-// Route công khai: Lấy danh sách sự kiện (chỉ hiển thị sự kiện "Đã phê duyệt")
+// Route công khai: Lấy danh sách sự kiện (chỉ hiển thị sự kiện "Đã phê duyệt") với phân trang
 publicRouter.get('/', async (req, res) => {
     try {
-        const { eventType, typeCode } = req.query;
+        const { eventType, typeCode, page = 1, limit = 6 } = req.query; // Mặc định page=1, limit=6
         const query = { status: 'Đã phê duyệt' };
 
         if (eventType) {
@@ -52,10 +52,35 @@ publicRouter.get('/', async (req, res) => {
             query.eventType = eventType._id;
         }
 
-        const events = await Event.find(query).populate('eventType').lean();
-        res.json(events);
+        // Tính toán phân trang
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
+        const skip = (pageNum - 1) * limitNum;
+
+        // Lấy tổng số sự kiện
+        const totalEvents = await Event.countDocuments(query);
+
+        // Lấy danh sách sự kiện với phân trang
+        const events = await Event.find(query)
+            .populate('eventType')
+            .skip(skip)
+            .limit(limitNum)
+            .lean();
+
+        res.json({
+            events: events || [], // Đảm bảo events luôn là mảng
+            currentPage: pageNum,
+            totalPages: Math.ceil(totalEvents / limitNum),
+            totalEvents,
+        });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            message: error.message,
+            events: [], // Trả về mảng rỗng nếu có lỗi
+            currentPage: 1,
+            totalPages: 1,
+            totalEvents: 0,
+        });
     }
 });
 
