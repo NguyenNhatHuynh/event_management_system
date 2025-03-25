@@ -1,32 +1,44 @@
+// frontend/src/pages/admin/Bookings.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Button, Container, Badge, Form } from 'react-bootstrap';
+import { Table, Button, Container, Badge, Form, Row, Col, Pagination } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Bookings = () => {
     const [bookings, setBookings] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalBookings, setTotalBookings] = useState(0);
+    const limit = 5; // Số đặt lịch trên mỗi trang
     const [rejectReason, setRejectReason] = useState(''); // State để lưu lý do từ chối
     const [showRejectInput, setShowRejectInput] = useState(null); // State để hiển thị input lý do từ chối
 
-    // Lấy danh sách đặt lịch khi component được mount
+    // Lấy danh sách đặt lịch với phân trang
+    const fetchBookings = async (page = 1) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`/api/bookings?page=${page}&limit=${limit}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setBookings(response.data.bookings || []);
+            setCurrentPage(response.data.currentPage || 1);
+            setTotalPages(response.data.totalPages || 1);
+            setTotalBookings(response.data.totalBookings || 0);
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách đặt lịch:', error);
+            toast.error('Lỗi khi lấy danh sách đặt lịch!');
+            setBookings([]);
+            setTotalPages(1);
+            setTotalBookings(0);
+        }
+    };
+
     useEffect(() => {
-        const fetchBookings = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:5000/api/bookings', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                setBookings(response.data);
-            } catch (error) {
-                console.error('Lỗi khi lấy danh sách đặt lịch:', error);
-                toast.error('Lỗi khi lấy danh sách đặt lịch!');
-            }
-        };
-        fetchBookings();
-    }, []);
+        fetchBookings(currentPage);
+    }, [currentPage]);
 
     // Xử lý phê duyệt đặt lịch
     const handleApprove = async (id) => {
@@ -36,7 +48,7 @@ const Bookings = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.put(
-                `http://localhost:5000/api/bookings/${id}/approve`,
+                `/api/bookings/${id}/approve`,
                 {},
                 {
                     headers: {
@@ -48,6 +60,7 @@ const Bookings = () => {
                 booking._id === id ? response.data : booking
             ));
             toast.success('Đã phê duyệt đặt lịch!');
+            fetchBookings(currentPage); // Làm mới danh sách sau khi phê duyệt
         } catch (error) {
             console.error('Lỗi khi phê duyệt:', error);
             toast.error('Lỗi khi phê duyệt: ' + error.response.data.message);
@@ -64,7 +77,7 @@ const Bookings = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.put(
-                `http://localhost:5000/api/bookings/${id}/reject`,
+                `/api/bookings/${id}/reject`,
                 { reason: rejectReason },
                 {
                     headers: {
@@ -78,9 +91,18 @@ const Bookings = () => {
             setRejectReason(''); // Reset lý do từ chối
             setShowRejectInput(null); // Ẩn input lý do từ chối
             toast.success('Đã từ chối đặt lịch!');
+            fetchBookings(currentPage); // Làm mới danh sách sau khi từ chối
         } catch (error) {
             console.error('Lỗi khi từ chối:', error);
             toast.error('Lỗi khi từ chối: ' + error.response.data.message);
+        }
+    };
+
+    // Xử lý chuyển trang
+    const handlePageChange = (pageNumber) => {
+        if (pageNumber >= 1 && pageNumber <= totalPages) {
+            setCurrentPage(pageNumber);
+            window.scrollTo(0, 0); // Cuộn lên đầu trang khi chuyển trang
         }
     };
 
@@ -103,10 +125,10 @@ const Bookings = () => {
                     {bookings.length > 0 ? (
                         bookings.map((booking, index) => (
                             <tr key={booking._id}>
-                                <td>{index + 1}</td>
+                                <td>{(currentPage - 1) * limit + index + 1}</td>
                                 <td>{booking.customerName}</td>
                                 <td>{booking.eventType}</td>
-                                <td>{new Date(booking.eventDate).toLocaleDateString()}</td>
+                                <td>{new Date(booking.eventDate).toLocaleDateString('vi-VN')}</td>
                                 <td>
                                     {booking.status === 'Pending' && (
                                         <Badge bg="warning" text="dark">
@@ -192,6 +214,44 @@ const Bookings = () => {
                     )}
                 </tbody>
             </Table>
+
+            {totalBookings > 0 && (
+                <Row className="mt-4">
+                    <Col className="d-flex justify-content-between align-items-center">
+                        <div>
+                            Tổng số đặt lịch: {totalBookings}
+                        </div>
+                        <Pagination>
+                            <Pagination.First
+                                onClick={() => handlePageChange(1)}
+                                disabled={currentPage === 1}
+                            />
+                            <Pagination.Prev
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            />
+                            {[...Array(totalPages).keys()].map((page) => (
+                                <Pagination.Item
+                                    key={page + 1}
+                                    active={page + 1 === currentPage}
+                                    onClick={() => handlePageChange(page + 1)}
+                                >
+                                    {page + 1}
+                                </Pagination.Item>
+                            ))}
+                            <Pagination.Next
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            />
+                            <Pagination.Last
+                                onClick={() => handlePageChange(totalPages)}
+                                disabled={currentPage === totalPages}
+                            />
+                        </Pagination>
+                    </Col>
+                </Row>
+            )}
+
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
         </Container>
     );

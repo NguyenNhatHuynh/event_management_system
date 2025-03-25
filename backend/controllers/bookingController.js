@@ -1,3 +1,4 @@
+// backend/controllers/bookingController.js
 const Booking = require('../models/Booking');
 const nodemailer = require('nodemailer');
 
@@ -29,11 +30,28 @@ exports.createBooking = async (req, res) => {
     }
 };
 
-// Lấy danh sách đặt lịch (cho admin)
+// Lấy danh sách đặt lịch (cho admin) với phân trang
 exports.getBookings = async (req, res) => {
     try {
-        const bookings = await Booking.find().sort({ createdAt: -1 });
-        res.json(bookings);
+        const page = parseInt(req.query.page) || 1; // Trang hiện tại, mặc định là 1
+        const limit = parseInt(req.query.limit) || 5; // Số lượng đặt lịch trên mỗi trang, mặc định là 5
+        const skip = (page - 1) * limit; // Số đặt lịch cần bỏ qua
+
+        // Lấy tổng số đặt lịch
+        const totalBookings = await Booking.countDocuments();
+
+        // Lấy danh sách đặt lịch với phân trang
+        const bookings = await Booking.find()
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 }); // Sắp xếp theo ngày tạo, mới nhất trước
+
+        res.json({
+            bookings,
+            currentPage: page,
+            totalPages: Math.ceil(totalBookings / limit),
+            totalBookings,
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

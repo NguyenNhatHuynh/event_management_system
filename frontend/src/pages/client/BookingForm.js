@@ -1,3 +1,4 @@
+// frontend/src/pages/client/BookingForm.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Form, Button } from 'react-bootstrap';
@@ -9,16 +10,18 @@ const BookingForm = () => {
         eventType: '',
         eventDate: '',
     });
-    const [eventTypes, setEventTypes] = useState([]);
+    const [eventTypes, setEventTypes] = useState([]); // Khởi tạo mặc định là mảng rỗng
 
     // Lấy danh sách loại sự kiện
     useEffect(() => {
         const fetchEventTypes = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/event-types/public');
-                setEventTypes(response.data);
+                const response = await axios.get('/api/event-types/public'); // Sử dụng proxy
+                // Đảm bảo response.data là mảng, nếu không thì gán mảng rỗng
+                setEventTypes(Array.isArray(response.data) ? response.data : []);
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
+                setEventTypes([]); // Gán mảng rỗng nếu có lỗi
             }
         };
         fetchEventTypes();
@@ -31,7 +34,7 @@ const BookingForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/bookings/public', formData);
+            await axios.post('/api/bookings/public', formData); // Sử dụng proxy
             alert('Yêu cầu đặt lịch đã được gửi thành công!');
             setFormData({
                 customerName: '',
@@ -41,7 +44,7 @@ const BookingForm = () => {
             });
         } catch (error) {
             console.error('Lỗi khi gửi yêu cầu đặt lịch:', error);
-            alert('Lỗi khi gửi yêu cầu: ' + error.response.data.message);
+            alert('Lỗi khi gửi yêu cầu: ' + (error.response?.data?.message || error.message));
         }
     };
 
