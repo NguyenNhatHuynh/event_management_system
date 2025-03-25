@@ -3,28 +3,18 @@ const Blog = require('../models/Blog');
 const fs = require('fs');
 const path = require('path');
 
-// Lấy tất cả blog (cho admin)
+// Lấy tất cả blog (cho admin) với phân trang
 exports.getBlogs = async (req, res) => {
     try {
-        const blogs = await Blog.find();
-        res.json(blogs);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-// Lấy danh sách blog công khai (cho client, chỉ lấy bài đã phê duyệt) với phân trang
-exports.getPublicBlogs = async (req, res) => {
-    try {
         const page = parseInt(req.query.page) || 1; // Trang hiện tại, mặc định là 1
-        const limit = parseInt(req.query.limit) || 6; // Số lượng bài viết trên mỗi trang, mặc định là 6
+        const limit = parseInt(req.query.limit) || 5; // Số lượng bài viết trên mỗi trang, mặc định là 5
         const skip = (page - 1) * limit; // Số bài viết cần bỏ qua
 
-        // Lấy tổng số bài viết công khai
-        const totalBlogs = await Blog.countDocuments({ status: 'approved' });
+        // Lấy tổng số bài viết
+        const totalBlogs = await Blog.countDocuments();
 
         // Lấy danh sách bài viết với phân trang
-        const blogs = await Blog.find({ status: 'approved' })
+        const blogs = await Blog.find()
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 }); // Sắp xếp theo ngày tạo, mới nhất trước
@@ -36,6 +26,42 @@ exports.getPublicBlogs = async (req, res) => {
                 if (!fs.existsSync(imagePath)) {
                     console.log(`Hình ảnh không tồn tại: ${blog.image}`);
                     blog.image = null; // Đặt image thành null nếu file không tồn tại
+                }
+            }
+            return blog;
+        });
+
+        res.json({
+            blogs: blogsWithImageCheck,
+            currentPage: page,
+            totalPages: Math.ceil(totalBlogs / limit),
+            totalBlogs,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Lấy danh sách blog công khai (cho client, chỉ lấy bài đã phê duyệt) với phân trang
+exports.getPublicBlogs = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 6;
+        const skip = (page - 1) * limit;
+
+        const totalBlogs = await Blog.countDocuments({ status: 'approved' });
+
+        const blogs = await Blog.find({ status: 'approved' })
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        const blogsWithImageCheck = blogs.map(blog => {
+            if (blog.image) {
+                const imagePath = path.join(__dirname, '..', blog.image);
+                if (!fs.existsSync(imagePath)) {
+                    console.log(`Hình ảnh không tồn tại: ${blog.image}`);
+                    blog.image = null;
                 }
             }
             return blog;
