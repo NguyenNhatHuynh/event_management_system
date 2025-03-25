@@ -1,8 +1,10 @@
+// frontend/src/pages/admin/AdminEvents.js
 import React, { useEffect, useState, useRef } from 'react';
-import { Container, Row, Col, Card, Table, Form, Button, Modal, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Form, Button, Modal, Dropdown, Pagination, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FaEdit, FaTrash } from 'react-icons/fa'; // Thêm biểu tượng từ react-icons
 import '../../assets/styles/Admin.css';
 
 function AdminEvents() {
@@ -21,16 +23,26 @@ function AdminEvents() {
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState('');
     const fileInputRef = useRef(null);
+    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+    const [totalPages, setTotalPages] = useState(1); // Tổng số trang
+    const [totalEvents, setTotalEvents] = useState(0); // Tổng số sự kiện
+    const limit = 3; // Số lượng sự kiện trên mỗi trang
 
-    const fetchEvents = async () => {
+    const fetchEvents = async (page = 1) => {
         try {
-            const response = await axios.get('/api/events', {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            });
+            const response = await axios.get(
+                `/api/events?page=${page}&limit=${limit}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                }
+            );
             console.log('Events data:', response.data);
-            setEvents(response.data);
+            setEvents(response.data.events);
+            setCurrentPage(response.data.currentPage || 1);
+            setTotalPages(response.data.totalPages || 1);
+            setTotalEvents(response.data.totalEvents || 0);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sự kiện:', error);
             toast.error('Lấy danh sách sự kiện thất bại');
@@ -52,9 +64,9 @@ function AdminEvents() {
     };
 
     useEffect(() => {
-        fetchEvents();
+        fetchEvents(currentPage);
         fetchEventTypes();
-    }, []);
+    }, [currentPage]); // Gọi lại fetchEvents khi currentPage thay đổi
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -84,7 +96,7 @@ function AdminEvents() {
             setFormData({ name: '', eventType: '', date: '', location: '', description: '', status: 'Đang chờ', image: null });
             fileInputRef.current.value = '';
             toast.success('Thêm sự kiện thành công!');
-            fetchEvents();
+            fetchEvents(currentPage); // Làm mới danh sách sau khi thêm
         } catch (error) {
             console.error('Lỗi khi thêm sự kiện:', error);
             setError(error.response?.data?.message || 'Thêm sự kiện thất bại');
@@ -134,7 +146,7 @@ function AdminEvents() {
             setEvents(events.map((event) => (event._id === editFormData._id ? response.data : event)));
             setShowModal(false);
             toast.success('Cập nhật sự kiện thành công!');
-            fetchEvents();
+            fetchEvents(currentPage); // Làm mới danh sách sau khi cập nhật
         } catch (error) {
             console.error('Lỗi khi cập nhật sự kiện:', error);
             setError(error.response?.data?.message || 'Cập nhật sự kiện thất bại');
@@ -152,7 +164,7 @@ function AdminEvents() {
                 });
                 setEvents(events.filter((event) => event._id !== id));
                 toast.success('Xóa sự kiện thành công!');
-                fetchEvents();
+                fetchEvents(currentPage); // Làm mới danh sách sau khi xóa
             } catch (error) {
                 console.error('Lỗi khi xóa sự kiện:', error);
                 toast.error(error.response?.data?.message || 'Xóa sự kiện thất bại');
@@ -173,10 +185,18 @@ function AdminEvents() {
             );
             setEvents(events.map((event) => (event._id === id ? response.data : event)));
             toast.success('Cập nhật trạng thái thành công!');
-            fetchEvents();
+            fetchEvents(currentPage); // Làm mới danh sách sau khi cập nhật trạng thái
         } catch (error) {
             console.error('Lỗi khi cập nhật trạng thái:', error);
             toast.error(error.response?.data?.message || 'Cập nhật trạng thái thất bại');
+        }
+    };
+
+    // Hàm chuyển trang
+    const handlePageChange = (pageNumber) => {
+        if (pageNumber >= 1 && pageNumber <= totalPages) {
+            setCurrentPage(pageNumber);
+            window.scrollTo(0, 0); // Cuộn lên đầu trang khi chuyển trang
         }
     };
 
@@ -385,26 +405,73 @@ function AdminEvents() {
                                                 )}
                                             </td>
                                             <td>
-                                                <Button
-                                                    variant="outline-primary"
-                                                    size="sm"
-                                                    className="me-2"
-                                                    onClick={() => handleEdit(event)}
+                                                <OverlayTrigger
+                                                    placement="top"
+                                                    overlay={<Tooltip id="edit-tooltip">Sửa</Tooltip>}
                                                 >
-                                                    Sửa
-                                                </Button>
-                                                <Button
-                                                    variant="outline-danger"
-                                                    size="sm"
-                                                    onClick={() => handleDelete(event._id)}
+                                                    <Button
+                                                        variant="link"
+                                                        className="action-btn edit-btn"
+                                                        onClick={() => handleEdit(event)}
+                                                    >
+                                                        <FaEdit />
+                                                    </Button>
+                                                </OverlayTrigger>
+                                                <OverlayTrigger
+                                                    placement="top"
+                                                    overlay={<Tooltip id="delete-tooltip">Xóa</Tooltip>}
                                                 >
-                                                    Xóa
-                                                </Button>
+                                                    <Button
+                                                        variant="link"
+                                                        className="action-btn delete-btn"
+                                                        onClick={() => handleDelete(event._id)}
+                                                    >
+                                                        <FaTrash />
+                                                    </Button>
+                                                </OverlayTrigger>
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </Table>
+
+                            {/* Phân trang */}
+                            {totalEvents > 0 && (
+                                <Row className="mt-4">
+                                    <Col className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            Tổng số sự kiện: {totalEvents}
+                                        </div>
+                                        <Pagination>
+                                            <Pagination.First
+                                                onClick={() => handlePageChange(1)}
+                                                disabled={currentPage === 1}
+                                            />
+                                            <Pagination.Prev
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                            />
+                                            {[...Array(totalPages).keys()].map((page) => (
+                                                <Pagination.Item
+                                                    key={page + 1}
+                                                    active={page + 1 === currentPage}
+                                                    onClick={() => handlePageChange(page + 1)}
+                                                >
+                                                    {page + 1}
+                                                </Pagination.Item>
+                                            ))}
+                                            <Pagination.Next
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                            />
+                                            <Pagination.Last
+                                                onClick={() => handlePageChange(totalPages)}
+                                                disabled={currentPage === totalPages}
+                                            />
+                                        </Pagination>
+                                    </Col>
+                                </Row>
+                            )}
                         </Card.Body>
                     </Card>
                 </Col>
@@ -537,4 +604,3 @@ function AdminEvents() {
 }
 
 export default AdminEvents;
-

@@ -98,13 +98,38 @@ publicRouter.get('/:id', async (req, res) => {
     }
 });
 
-// Route admin: Lấy danh sách tất cả sự kiện
+// Route admin: Lấy danh sách tất cả sự kiện với phân trang
 router.get('/', async (req, res) => {
     try {
-        const events = await Event.find().populate('eventType');
-        res.json(events);
+        const { page = 1, limit = 3 } = req.query; // Mặc định page=1, limit=3
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
+        const skip = (pageNum - 1) * limitNum;
+
+        // Lấy tổng số sự kiện
+        const totalEvents = await Event.countDocuments();
+
+        // Lấy danh sách sự kiện với phân trang
+        const events = await Event.find()
+            .populate('eventType')
+            .skip(skip)
+            .limit(limitNum)
+            .lean();
+
+        res.json({
+            events: events || [], // Đảm bảo events luôn là mảng
+            currentPage: pageNum,
+            totalPages: Math.ceil(totalEvents / limitNum),
+            totalEvents,
+        });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            message: error.message,
+            events: [], // Trả về mảng rỗng nếu có lỗi
+            currentPage: 1,
+            totalPages: 1,
+            totalEvents: 0,
+        });
     }
 });
 

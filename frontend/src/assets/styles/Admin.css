@@ -317,3 +317,97 @@ body {
 .admin-card .pagination .page-link:hover {
     background-color: #e9ecef;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* frontend/src/assets/styles/Admin.css */
+
+/* Tùy chỉnh giao diện chung */
+.admin-container {
+    padding: 20px;
+}
+
+.admin-card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.admin-card .form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.admin-card .form-control {
+    border-radius: 5px;
+}
+
+.admin-card .btn-primary {
+    border-radius: 5px;
+    padding: 8px 16px;
+}
+
+.admin-card .table th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+}
+
+.admin-card .pagination {
+    justify-content: center;
+}
+
+.admin-card .pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.admin-card .pagination .page-link {
+    color: #007bff;
+}
+
+.admin-card .pagination .page-link:hover {
+    background-color: #e9ecef;
+}
+
+/* Tùy chỉnh nút hành động */
+.action-btn {
+    font-size: 1.2rem;
+    /* Kích thước biểu tượng */
+    padding: 5px;
+    /* Khoảng cách bên trong */
+    transition: all 0.2s ease;
+    /* Hiệu ứng chuyển đổi mượt mà */
+}
+
+.edit-btn {
+    color: #007bff;
+    /* Màu xanh cho nút Sửa */
+}
+
+.edit-btn:hover {
+    color: #0056b3;
+    /* Màu xanh đậm hơn khi hover */
+}
+
+.delete-btn {
+    color: #dc3545;
+    /* Màu đỏ cho nút Xóa */
+}
+
+.delete-btn:hover {
+    color: #a71d2a;
+    /* Màu đỏ đậm hơn khi hover */
+}
