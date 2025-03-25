@@ -235,3 +235,85 @@ body {
     visibility: visible !important;
     display: block !important;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.admin-card .pagination {
+    justify-content: center;
+}
+
+.admin-card .pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.admin-card .pagination .page-link {
+    color: #007bff;
+}
+
+.admin-card .pagination .page-link:hover {
+    background-color: #e9ecef;
+}
+
+
+
+
+.admin-container {
+    padding: 20px;
+}
+
+.admin-card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.admin-card .form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.admin-card .form-control {
+    border-radius: 5px;
+}
+
+.admin-card .btn-primary {
+    border-radius: 5px;
+    padding: 8px 16px;
+}
+
+.admin-card .table th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+}
+
+.admin-card .pagination {
+    justify-content: center;
+}
+
+.admin-card .pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.admin-card .pagination .page-link {
+    color: #007bff;
+}
+
+.admin-card .pagination .page-link:hover {
+    background-color: #e9ecef;
+}

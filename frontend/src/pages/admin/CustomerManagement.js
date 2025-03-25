@@ -1,5 +1,6 @@
+// frontend/src/pages/admin/CustomerManagement.js
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Table, Form, Button, Nav, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Form, Button, Modal, Pagination } from 'react-bootstrap';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,18 +19,26 @@ function CustomerManagement() {
     const [editFormData, setEditFormData] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState('');
+    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+    const [totalPages, setTotalPages] = useState(1); // Tổng số trang
+    const [totalUsers, setTotalUsers] = useState(0); // Tổng số người dùng
+    const limit = 6; // Số lượng người dùng trên mỗi trang
 
-    // Lấy danh sách người dùng
-    const fetchUsers = async () => {
+    // Lấy danh sách khách hàng với phân trang
+    const fetchUsers = async (page = 1) => {
         try {
-            const response = await axios.get('http://localhost:5000/api/users', {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            });
-            // Lọc chỉ lấy người dùng có vai trò là "customer"
-            const customers = response.data.filter((user) => user.role === 'customer');
-            setUsers(customers);
+            const response = await axios.get(
+                `http://localhost:5000/api/users?page=${page}&limit=${limit}&role=customer`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                }
+            );
+            setUsers(response.data.users);
+            setCurrentPage(response.data.currentPage || 1);
+            setTotalPages(response.data.totalPages || 1);
+            setTotalUsers(response.data.totalUsers || 0);
         } catch (error) {
             console.error(error);
             toast.error('Lấy danh sách khách hàng thất bại');
@@ -37,8 +46,8 @@ function CustomerManagement() {
     };
 
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        fetchUsers(currentPage);
+    }, [currentPage]); // Gọi lại fetchUsers khi currentPage thay đổi
 
     // Thêm tài khoản khách hàng mới
     const handleSubmit = async (e) => {
@@ -60,6 +69,7 @@ function CustomerManagement() {
             setUsers([...users, response.data]);
             setFormData({ username: '', email: '', password: '', fullName: '', phone: '', address: '' });
             toast.success('Thêm tài khoản khách hàng thành công!');
+            fetchUsers(currentPage); // Làm mới danh sách sau khi thêm
         } catch (error) {
             setError(error.response?.data?.message || 'Thêm tài khoản khách hàng thất bại');
             toast.error(error.response?.data?.message || 'Thêm tài khoản khách hàng thất bại');
@@ -93,6 +103,7 @@ function CustomerManagement() {
             );
             setShowModal(false);
             toast.success('Cập nhật thông tin khách hàng thành công!');
+            fetchUsers(currentPage); // Làm mới danh sách sau khi cập nhật
         } catch (error) {
             setError(error.response?.data?.message || 'Cập nhật thông tin khách hàng thất bại');
             toast.error(error.response?.data?.message || 'Cập nhật thông tin khách hàng thất bại');
@@ -110,9 +121,18 @@ function CustomerManagement() {
                 });
                 setUsers(users.filter((user) => user._id !== id));
                 toast.success('Xóa tài khoản khách hàng thành công!');
+                fetchUsers(currentPage); // Làm mới danh sách sau khi xóa
             } catch (error) {
                 toast.error(error.response?.data?.message || 'Xóa tài khoản khách hàng thất bại');
             }
+        }
+    };
+
+    // Hàm chuyển trang
+    const handlePageChange = (pageNumber) => {
+        if (pageNumber >= 1 && pageNumber <= totalPages) {
+            setCurrentPage(pageNumber);
+            window.scrollTo(0, 0); // Cuộn lên đầu trang khi chuyển trang
         }
     };
 
@@ -120,17 +140,7 @@ function CustomerManagement() {
         <Container fluid className="admin-container">
             <ToastContainer />
             <Row>
-                <Col md={3} className="admin-sidebar">
-                    <Nav className="flex-column">
-                        <Nav.Link as="a" href="/admin/dashboard">
-                            Dashboard
-                        </Nav.Link>
-                        <Nav.Link as="a" href="/admin/users">
-                            Quản lý khách hàng
-                        </Nav.Link>
-                    </Nav>
-                </Col>
-                <Col md={9}>
+                <Col md={12}>
                     <h1 className="mb-4">Quản lý khách hàng</h1>
                     <Card className="admin-card mb-4">
                         <Card.Body>
@@ -140,9 +150,10 @@ function CustomerManagement() {
                                 </div>
                             )}
                             <Form onSubmit={handleSubmit}>
-                                <Row>
+                                <Row className="align-items-end">
                                     <Col md={3}>
                                         <Form.Group>
+                                            <Form.Label>Tên người dùng</Form.Label>
                                             <Form.Control
                                                 type="text"
                                                 placeholder="Tên người dùng"
@@ -156,6 +167,7 @@ function CustomerManagement() {
                                     </Col>
                                     <Col md={3}>
                                         <Form.Group>
+                                            <Form.Label>Email</Form.Label>
                                             <Form.Control
                                                 type="email"
                                                 placeholder="Email"
@@ -167,8 +179,9 @@ function CustomerManagement() {
                                             />
                                         </Form.Group>
                                     </Col>
-                                    <Col md={3}>
+                                    <Col md={2}>
                                         <Form.Group>
+                                            <Form.Label>Mật khẩu</Form.Label>
                                             <Form.Control
                                                 type="password"
                                                 placeholder="Mật khẩu"
@@ -180,8 +193,9 @@ function CustomerManagement() {
                                             />
                                         </Form.Group>
                                     </Col>
-                                    <Col md={3}>
+                                    <Col md={2}>
                                         <Form.Group>
+                                            <Form.Label>Họ và tên</Form.Label>
                                             <Form.Control
                                                 type="text"
                                                 placeholder="Họ và tên (tùy chọn)"
@@ -192,10 +206,16 @@ function CustomerManagement() {
                                             />
                                         </Form.Group>
                                     </Col>
+                                    <Col md={2}>
+                                        <Button type="submit" variant="primary" className="w-100">
+                                            Thêm khách hàng
+                                        </Button>
+                                    </Col>
                                 </Row>
                                 <Row className="mt-3">
                                     <Col md={3}>
                                         <Form.Group>
+                                            <Form.Label>Số điện thoại</Form.Label>
                                             <Form.Control
                                                 type="text"
                                                 placeholder="Số điện thoại (tùy chọn)"
@@ -206,8 +226,9 @@ function CustomerManagement() {
                                             />
                                         </Form.Group>
                                     </Col>
-                                    <Col md={7}>
+                                    <Col md={9}>
                                         <Form.Group>
+                                            <Form.Label>Địa chỉ</Form.Label>
                                             <Form.Control
                                                 type="text"
                                                 placeholder="Địa chỉ (tùy chọn)"
@@ -217,11 +238,6 @@ function CustomerManagement() {
                                                 }
                                             />
                                         </Form.Group>
-                                    </Col>
-                                    <Col md={2}>
-                                        <Button type="submit" variant="primary">
-                                            Thêm khách hàng
-                                        </Button>
                                     </Col>
                                 </Row>
                             </Form>
@@ -271,6 +287,45 @@ function CustomerManagement() {
                                     ))}
                                 </tbody>
                             </Table>
+
+                            {/* Phân trang */}
+                            {totalUsers > 0 && (
+                                <Row className="mt-4">
+                                    <Col className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            Tổng số khách hàng: {totalUsers}
+                                        </div>
+                                        <Pagination>
+                                            <Pagination.First
+                                                onClick={() => handlePageChange(1)}
+                                                disabled={currentPage === 1}
+                                            />
+                                            <Pagination.Prev
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                            />
+                                            {[...Array(totalPages).keys()].map((page) => (
+
+                                            <Pagination.Item
+                                                key={page + 1}
+                                                active={page + 1 === currentPage}
+                                                onClick={() => handlePageChange(page + 1)}
+                                            >
+                                                {page + 1}
+                                            </Pagination.Item>
+                                            ))}
+                                            <Pagination.Next
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                            />
+                                            <Pagination.Last
+                                                onClick={() => handlePageChange(totalPages)}
+                                                disabled={currentPage === totalPages}
+                                            />
+                                        </Pagination>
+                                    </Col>
+                                </Row>
+                            )}
                         </Card.Body>
                     </Card>
                 </Col>

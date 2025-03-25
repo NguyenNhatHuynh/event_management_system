@@ -1,3 +1,4 @@
+// backend/controllers/userController.js
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
@@ -12,16 +13,49 @@ const checkDuplicate = async (field, value, excludeId) => {
     return existing;
 };
 
+// Lấy danh sách người dùng với phân trang và lọc theo vai trò
 exports.getUsers = async (req, res) => {
     try {
-        const users = await User.find().select('-password');
-        res.json(users);
+        const { page = 1, limit = 6, role } = req.query; // Mặc định page=1, limit=6
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
+        const skip = (pageNum - 1) * limitNum;
+
+        // Tạo query để lọc theo vai trò nếu có
+        const query = {};
+        if (role) {
+            query.role = role;
+        }
+
+        // Lấy tổng số người dùng
+        const totalUsers = await User.countDocuments(query);
+
+        // Lấy danh sách người dùng với phân trang
+        const users = await User.find(query)
+            .select('-password')
+            .skip(skip)
+            .limit(limitNum)
+            .lean();
+
+        res.json({
+            users: users || [], // Đảm bảo users luôn là mảng
+            currentPage: pageNum,
+            totalPages: Math.ceil(totalUsers / limitNum),
+            totalUsers,
+        });
     } catch (error) {
         console.error('Lỗi khi lấy danh sách người dùng:', error.message);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            message: error.message,
+            users: [],
+            currentPage: 1,
+            totalPages: 1,
+            totalUsers: 0,
+        });
     }
 };
 
+// Các hàm khác giữ nguyên
 exports.getMe = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
