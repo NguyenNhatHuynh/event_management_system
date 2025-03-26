@@ -1,3 +1,4 @@
+// frontend/src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Outlet } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -21,16 +22,29 @@ import CustomerManagement from './pages/admin/CustomerManagement';
 import AdminEvents from './pages/admin/AdminEvents';
 import AdminEventTypes from './pages/admin/AdminEventTypes';
 import AdminBlogs from './pages/admin/AdminBlogs';
-import AdminContacts from './pages/admin/Contacts';
-import AdminBookings from './pages/admin/Bookings';
-import AdminAnalytics from './pages/admin/Analytics';
-import AdminSettings from './pages/admin/Settings';
-import AdminProfile from './pages/admin/Profile';
 import BlogDetail from './pages/client/BlogDetail';
 import AddBlog from './pages/admin/AddBlog';
 import EditBlog from './pages/admin/EditBlog';
 import TestQuill from './pages/admin/TestQuill';
 import BookingForm from './pages/client/BookingForm';
+import AdminBookings from './pages/admin/Bookings'; // Thêm import
+import AdminContacts from './pages/admin/Contacts'; // Thêm import
+import AdminAnalytics from './pages/admin/Analytics'; // Thêm import
+import AdminSettings from './pages/admin/Settings'; // Thêm import
+import AdminProfile from './pages/admin/Profile'; // Thêm import
+
+// Suppress React Router v7 warnings in a v6 project
+const originalWarn = console.warn;
+console.warn = (...args) => {
+    if (
+        args[0].includes('startTransition') ||
+        args[0].includes('relative route resolution') ||
+        args[0].includes('relativeSplatPath')
+    ) {
+        return;
+    }
+    originalWarn(...args);
+};
 
 function App() {
     return (
@@ -64,7 +78,6 @@ function App() {
                             </PrivateRoute>
                         }
                     />
-                    {/* Thêm route cho trang đặt lịch */}
                     <Route path="/booking" element={<BookingForm />} />
                 </Route>
 
@@ -85,8 +98,8 @@ function App() {
                     <Route path="blogs/add" element={<AddBlog />} />
                     <Route path="blogs/edit/:id" element={<EditBlog />} />
                     <Route path="test-quill" element={<TestQuill />} />
-                    <Route path="contacts" element={<AdminContacts />} />
                     <Route path="bookings" element={<AdminBookings />} />
+                    <Route path="contacts" element={<AdminContacts />} />
                     <Route path="analytics" element={<AdminAnalytics />} />
                     <Route path="settings" element={<AdminSettings />} />
                     <Route path="profile" element={<AdminProfile />} />

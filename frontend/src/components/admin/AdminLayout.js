@@ -2,6 +2,7 @@
 import React from 'react';
 import { Container, Navbar, Nav, Row, Col } from 'react-bootstrap';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { FaTachometerAlt, FaUsers, FaCalendarAlt, FaFolderOpen, FaBlog, FaEnvelope, FaBook, FaChartBar, FaCog, FaUser } from 'react-icons/fa';
 import '../../assets/styles/Admin.css';
 
 function AdminLayout() {
@@ -32,34 +33,34 @@ function AdminLayout() {
                 <Col md={2} className="admin-sidebar">
                     <Nav className="flex-column">
                         <Nav.Link as={Link} to="/admin/dashboard">
-                            Dashboard
+                            <FaTachometerAlt className="me-2" /> Dashboard
                         </Nav.Link>
                         <Nav.Link as={Link} to="/admin/users">
-                            Quản lý người dùng
+                            <FaUsers className="me-2" /> Quản lý người dùng
                         </Nav.Link>
                         <Nav.Link as={Link} to="/admin/events">
-                            Quản lý sự kiện
+                            <FaCalendarAlt className="me-2" /> Quản lý sự kiện
                         </Nav.Link>
                         <Nav.Link as={Link} to="/admin/event-types">
-                            Quản lý loại sự kiện
+                            <FaFolderOpen className="me-2" /> Quản lý loại sự kiện
                         </Nav.Link>
                         <Nav.Link as={Link} to="/admin/blogs">
-                            Quản lý bài viết
+                            <FaBlog className="me-2" /> Quản lý bài viết
                         </Nav.Link>
                         <Nav.Link as={Link} to="/admin/contacts">
-                            Quản lý liên hệ
+                            <FaEnvelope className="me-2" /> Quản lý liên hệ
                         </Nav.Link>
                         <Nav.Link as={Link} to="/admin/bookings">
-                            Quản lý đặt lịch
+                            <FaBook className="me-2" /> Quản lý đặt lịch
                         </Nav.Link>
                         <Nav.Link as={Link} to="/admin/analytics">
-                            Thống kê
+                            <FaChartBar className="me-2" /> Thống kê
                         </Nav.Link>
                         <Nav.Link as={Link} to="/admin/settings">
-                            Cài đặt
+                            <FaCog className="me-2" /> Cài đặt
                         </Nav.Link>
                         <Nav.Link as={Link} to="/admin/profile">
-                            Hồ sơ
+                            <FaUser className="me-2" /> Hồ sơ
                         </Nav.Link>
                     </Nav>
                 </Col>

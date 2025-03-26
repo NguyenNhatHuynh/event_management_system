@@ -1,3 +1,4 @@
+// frontend/src/components/ClientNavbar.js
 import React, { useEffect, useState } from 'react';
 import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
@@ -6,15 +7,30 @@ import '../assets/styles/Client.css';
 
 function ClientNavbar() {
     const [eventTypes, setEventTypes] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     // Lấy danh sách loại sự kiện từ API
     useEffect(() => {
         const fetchEventTypes = async () => {
+            setLoading(true);
+            setError(null);
             try {
                 const response = await axios.get('http://localhost:5000/api/event-types/public');
-                setEventTypes(response.data);
+                console.log('API Response for event types:', response.data);
+                const fetchedEventTypes = response.data.eventTypes || [];
+                if (Array.isArray(fetchedEventTypes)) {
+                    setEventTypes(fetchedEventTypes);
+                } else {
+                    console.error('Dữ liệu eventTypes không phải là mảng:', fetchedEventTypes);
+                    setEventTypes([]);
+                }
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
+                setError('Không thể tải danh sách loại sự kiện. Vui lòng thử lại sau.');
+                setEventTypes([]);
+            } finally {
+                setLoading(false);
             }
         };
         fetchEventTypes();
@@ -76,7 +92,15 @@ function ClientNavbar() {
                                     Xem tất cả loại sự kiện
                                 </NavDropdown.Item>
                                 <NavDropdown.Divider />
-                                {eventTypes.length > 0 ? (
+                                {loading ? (
+                                    <NavDropdown.Item disabled>
+                                        Đang tải loại sự kiện...
+                                    </NavDropdown.Item>
+                                ) : error ? (
+                                    <NavDropdown.Item disabled>
+                                        {error}
+                                    </NavDropdown.Item>
+                                ) : eventTypes.length > 0 ? (
                                     eventTypes.map((type) => (
                                         <NavDropdown.Item
                                             key={type._id}
@@ -106,7 +130,6 @@ function ClientNavbar() {
                             >
                                 Tin tức
                             </Nav.Link>
-                            {/* Thêm mục Đặt lịch */}
                             <Nav.Link
                                 as={NavLink}
                                 to="/booking"

@@ -1,31 +1,31 @@
 // frontend/src/pages/client/EventTypes.js
 import React, { useEffect, useState, useCallback } from 'react';
-import { Container, Row, Col, Card, Button, Pagination } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Pagination, Spinner } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../../assets/styles/Client.css';
 import 'animate.css';
 
 function EventTypes() {
-    const { typeCode } = useParams(); // Lấy typeCode từ URL (ví dụ: "FULL_MONTH")
-    const [events, setEvents] = useState([]); // Danh sách sự kiện
-    const [eventTypes, setEventTypes] = useState([]); // Danh sách loại sự kiện
-    const [eventTypeName, setEventTypeName] = useState(''); // Tên loại sự kiện
-    const [loading, setLoading] = useState(false); // Trạng thái tải
-    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-    const [totalPages, setTotalPages] = useState(1); // Tổng số trang
-    const [totalEvents, setTotalEvents] = useState(0); // Tổng số sự kiện
-    const limit = 6; // Số lượng sự kiện trên mỗi trang
+    const { typeCode } = useParams();
+    const [events, setEvents] = useState([]);
+    const [eventTypes, setEventTypes] = useState([]); // eslint-disable-line no-unused-vars
+    const [eventTypeName, setEventTypeName] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalEvents, setTotalEvents] = useState(0);
+    const limit = 6;
 
-    // Lấy danh sách loại sự kiện để tìm tên loại dựa trên typeCode
     const fetchEventTypes = useCallback(async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/event-types/public');
-            setEventTypes(response.data);
+            const fetchedEventTypes = response.data.eventTypes || [];
+            setEventTypes(fetchedEventTypes);
 
-            // Nếu có typeCode, tìm tên loại sự kiện tương ứng
             if (typeCode) {
-                const eventType = response.data.find((type) => type.typeCode === typeCode);
+                const eventType = fetchedEventTypes.find((type) => type.typeCode === typeCode);
                 if (eventType) {
                     setEventTypeName(eventType.name);
                 } else {
@@ -34,22 +34,22 @@ function EventTypes() {
             }
         } catch (error) {
             console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
+            setError('Không thể tải danh sách loại sự kiện.');
         }
     }, [typeCode]);
 
-    // Lấy danh sách sự kiện với phân trang
     const fetchEvents = useCallback(async (page = 1) => {
         setLoading(true);
+        setError(null);
         try {
             let url = `http://localhost:5000/api/events/public?page=${page}&limit=${limit}`;
             if (typeCode) {
-                url += `&typeCode=${typeCode}`; // Sử dụng typeCode trực tiếp nhờ backend đã hỗ trợ
+                url += `&typeCode=${typeCode}`;
             }
             console.log('Fetching events with URL:', url);
             const response = await axios.get(url);
             console.log('API response:', response.data);
 
-            // Kiểm tra dữ liệu trả về từ API
             const eventsData = Array.isArray(response.data.events) ? response.data.events : [];
             setEvents(eventsData);
             setCurrentPage(response.data.currentPage || 1);
@@ -57,15 +57,8 @@ function EventTypes() {
             setTotalEvents(response.data.totalEvents || 0);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sự kiện:', error);
-            if (error.response) {
-                console.log('Response status:', error.response.status);
-                console.log('Response data:', error.response.data);
-            } else if (error.request) {
-                console.log('No response received:', error.request);
-            } else {
-                console.log('Error message:', error.message);
-            }
-            setEvents([]); // Đặt events về mảng rỗng nếu có lỗi
+            setError('Không thể tải danh sách sự kiện. Vui lòng thử lại sau.');
+            setEvents([]);
             setTotalPages(1);
             setTotalEvents(0);
         } finally {
@@ -79,22 +72,33 @@ function EventTypes() {
 
     useEffect(() => {
         fetchEvents(currentPage);
-    }, [fetchEvents, currentPage]); // Gọi lại fetchEvents khi currentPage thay đổi
+    }, [fetchEvents, currentPage]);
 
-    // Hàm chuyển trang
     const handlePageChange = (pageNumber) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
-            window.scrollTo(0, 0); // Cuộn lên đầu trang khi chuyển trang
+            window.scrollTo(0, 0);
         }
     };
-
-    console.log('Current events state:', events);
 
     if (loading) {
         return (
             <div className="text-center py-5">
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Đang tải...</span>
+                </Spinner>
                 <p>Đang tải...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center py-5">
+                <p className="text-danger">{error}</p>
+                <Button variant="primary" onClick={() => fetchEvents(currentPage)}>
+                    Thử lại
+                </Button>
             </div>
         );
     }
@@ -142,7 +146,6 @@ function EventTypes() {
                                 ))}
                             </Row>
 
-                            {/* Phân trang */}
                             {totalEvents > 0 && (
                                 <Row className="mt-4">
                                     <Col className="d-flex justify-content-between align-items-center">

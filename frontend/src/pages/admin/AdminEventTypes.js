@@ -1,6 +1,6 @@
 // frontend/src/pages/admin/AdminEventTypes.js
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Table, Form, Button, Modal, Pagination, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Form, Button, Modal, Pagination, OverlayTrigger, Tooltip, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,12 +17,15 @@ function AdminEventTypes() {
     const [editFormData, setEditFormData] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false); // Added for loading state
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalEventTypes, setTotalEventTypes] = useState(0);
     const limit = 6;
 
     const fetchEventTypes = async (page = 1) => {
+        setLoading(true);
+        setError('');
         try {
             const response = await axios.get(
                 `/api/event-types?page=${page}&limit=${limit}`,
@@ -38,8 +41,11 @@ function AdminEventTypes() {
             setTotalEventTypes(response.data.totalEventTypes || 0);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
+            setError('Lấy danh sách loại sự kiện thất bại. Vui lòng thử lại.');
             toast.error('Lấy danh sách loại sự kiện thất bại');
             setEventTypes([]);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -50,6 +56,7 @@ function AdminEventTypes() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
         try {
             const response = await axios.post('/api/event-types', formData, {
                 headers: {
@@ -64,6 +71,8 @@ function AdminEventTypes() {
             console.error('Lỗi khi thêm loại sự kiện:', error);
             setError(error.response?.data?.message || 'Thêm loại sự kiện thất bại');
             toast.error(error.response?.data?.message || 'Thêm loại sự kiện thất bại');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -80,6 +89,7 @@ function AdminEventTypes() {
     const handleUpdate = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
         try {
             const response = await axios.put(
                 `/api/event-types/${editFormData._id}`,
@@ -100,11 +110,14 @@ function AdminEventTypes() {
             console.error('Lỗi khi cập nhật loại sự kiện:', error);
             setError(error.response?.data?.message || 'Cập nhật loại sự kiện thất bại');
             toast.error(error.response?.data?.message || 'Cập nhật loại sự kiện thất bại');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa loại sự kiện này?')) {
+            setLoading(true);
             try {
                 await axios.delete(`/api/event-types/${id}`, {
                     headers: {
@@ -117,6 +130,8 @@ function AdminEventTypes() {
             } catch (error) {
                 console.error('Lỗi khi xóa loại sự kiện:', error);
                 toast.error(error.response?.data?.message || 'Xóa loại sự kiện thất bại');
+            } finally {
+                setLoading(false);
             }
         }
     };
@@ -127,6 +142,17 @@ function AdminEventTypes() {
             window.scrollTo(0, 0);
         }
     };
+
+    if (loading) {
+        return (
+            <div className="text-center py-5">
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Đang tải...</span>
+                </Spinner>
+                <p>Đang tải...</p>
+            </div>
+        );
+    }
 
     return (
         <Container fluid className="admin-container">
@@ -154,6 +180,7 @@ function AdminEventTypes() {
                                                     setFormData({ ...formData, typeCode: e.target.value })
                                                 }
                                                 required
+                                                disabled={loading}
                                             />
                                         </Form.Group>
                                     </Col>
@@ -168,6 +195,7 @@ function AdminEventTypes() {
                                                     setFormData({ ...formData, name: e.target.value })
                                                 }
                                                 required
+                                                disabled={loading}
                                             />
                                         </Form.Group>
                                     </Col>
@@ -181,12 +209,13 @@ function AdminEventTypes() {
                                                 onChange={(e) =>
                                                     setFormData({ ...formData, description: e.target.value })
                                                 }
+                                                disabled={loading}
                                             />
                                         </Form.Group>
                                     </Col>
                                     <Col md={2} className="d-flex align-items-end">
-                                        <Button type="submit" variant="primary">
-                                            Thêm loại sự kiện
+                                        <Button type="submit" variant="primary" disabled={loading}>
+                                            {loading ? 'Đang xử lý...' : 'Thêm loại sự kiện'}
                                         </Button>
                                     </Col>
                                 </Row>
@@ -195,89 +224,100 @@ function AdminEventTypes() {
                     </Card>
                     <Card className="admin-card">
                         <Card.Body>
-                            <Table striped bordered hover responsive>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Mã loại sự kiện</th>
-                                        <th>Tên loại sự kiện</th>
-                                        <th>Mô tả</th>
-                                        <th>Hành động</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {eventTypes.map((type, index) => (
-                                        <tr key={type._id}>
-                                            <td>{(currentPage - 1) * limit + index + 1}</td>
-                                            <td>{type.typeCode}</td>
-                                            <td>{type.name}</td>
-                                            <td>{type.description || '-'}</td>
-                                            <td>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={<Tooltip id="edit-tooltip">Sửa</Tooltip>}
-                                                >
-                                                    <Button
-                                                        variant="link"
-                                                        className="action-btn edit-btn"
-                                                        onClick={() => handleEdit(type)}
-                                                    >
-                                                        <FaEdit />
-                                                    </Button>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={<Tooltip id="delete-tooltip">Xóa</Tooltip>}
-                                                >
-                                                    <Button
-                                                        variant="link"
-                                                        className="action-btn delete-btn"
-                                                        onClick={() => handleDelete(type._id)}
-                                                    >
-                                                        <FaTrash />
-                                                    </Button>
-                                                </OverlayTrigger>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-
-                            {totalEventTypes > 0 && (
-                                <Row className="mt-4">
-                                    <Col className="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            Tổng số loại sự kiện: {totalEventTypes}
-                                        </div>
-                                        <Pagination>
-                                            <Pagination.First
-                                                onClick={() => handlePageChange(1)}
-                                                disabled={currentPage === 1}
-                                            />
-                                            <Pagination.Prev
-                                                onClick={() => handlePageChange(currentPage - 1)}
-                                                disabled={currentPage === 1}
-                                            />
-                                            {[...Array(totalPages).keys()].map((page) => (
-                                                <Pagination.Item
-                                                    key={page + 1}
-                                                    active={page + 1 === currentPage}
-                                                    onClick={() => handlePageChange(page + 1)}
-                                                >
-                                                    {page + 1}
-                                                </Pagination.Item>
+                            {eventTypes.length === 0 ? (
+                                <div className="text-center py-5">
+                                    <p>Chưa có loại sự kiện nào.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <Table striped bordered hover responsive>
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Mã loại sự kiện</th>
+                                                <th>Tên loại sự kiện</th>
+                                                <th>Mô tả</th>
+                                                <th>Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {eventTypes.map((type, index) => (
+                                                <tr key={type._id}>
+                                                    <td>{(currentPage - 1) * limit + index + 1}</td>
+                                                    <td>{type.typeCode}</td>
+                                                    <td>{type.name}</td>
+                                                    <td>{type.description || '-'}</td>
+                                                    <td>
+                                                        <OverlayTrigger
+                                                            placement="top"
+                                                            overlay={<Tooltip id="edit-tooltip">Sửa</Tooltip>}
+                                                        >
+                                                            <Button
+                                                                variant="link"
+                                                                className="action-btn edit-btn"
+                                                                onClick={() => handleEdit(type)}
+                                                                disabled={loading}
+                                                            >
+                                                                <FaEdit />
+                                                            </Button>
+                                                        </OverlayTrigger>
+                                                        <OverlayTrigger
+                                                            placement="top"
+                                                            overlay={<Tooltip id="delete-tooltip">Xóa</Tooltip>}
+                                                        >
+                                                            <Button
+                                                                variant="link"
+                                                                className="action-btn delete-btn"
+                                                                onClick={() => handleDelete(type._id)}
+                                                                disabled={loading}
+                                                            >
+                                                                <FaTrash />
+                                                            </Button>
+                                                        </OverlayTrigger>
+                                                    </td>
+                                                </tr>
                                             ))}
-                                            <Pagination.Next
-                                                onClick={() => handlePageChange(currentPage + 1)}
-                                                disabled={currentPage === totalPages}
-                                            />
-                                            <Pagination.Last
-                                                onClick={() => handlePageChange(totalPages)}
-                                                disabled={currentPage === totalPages}
-                                            />
-                                        </Pagination>
-                                    </Col>
-                                </Row>
+                                        </tbody>
+                                    </Table>
+
+                                    {totalEventTypes > 0 && (
+                                        <Row className="mt-4">
+                                            <Col className="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    Tổng số loại sự kiện: {totalEventTypes}
+                                                </div>
+                                                <Pagination>
+                                                    <Pagination.First
+                                                        onClick={() => handlePageChange(1)}
+                                                        disabled={currentPage === 1 || loading}
+                                                    />
+                                                    <Pagination.Prev
+                                                        onClick={() => handlePageChange(currentPage - 1)}
+                                                        disabled={currentPage === 1 || loading}
+                                                    />
+                                                    {[...Array(totalPages).keys()].map((page) => (
+                                                        <Pagination.Item
+                                                            key={page + 1}
+                                                            active={page + 1 === currentPage}
+                                                            onClick={() => handlePageChange(page + 1)}
+                                                            disabled={loading}
+                                                        >
+                                                            {page + 1}
+                                                        </Pagination.Item>
+                                                    ))}
+                                                    <Pagination.Next
+                                                        onClick={() => handlePageChange(currentPage + 1)}
+                                                        disabled={currentPage === totalPages || loading}
+                                                    />
+                                                    <Pagination.Last
+                                                        onClick={() => handlePageChange(totalPages)}
+                                                        disabled={currentPage === totalPages || loading}
+                                                    />
+                                                </Pagination>
+                                            </Col>
+                                        </Row>
+                                    )}
+                                </>
                             )}
                         </Card.Body>
                     </Card>
@@ -305,6 +345,7 @@ function AdminEventTypes() {
                                         setEditFormData({ ...editFormData, typeCode: e.target.value })
                                     }
                                     required
+                                    disabled={loading}
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3">
@@ -316,6 +357,7 @@ function AdminEventTypes() {
                                         setEditFormData({ ...editFormData, name: e.target.value })
                                     }
                                     required
+                                    disabled={loading}
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3">
@@ -326,10 +368,11 @@ function AdminEventTypes() {
                                     onChange={(e) =>
                                         setEditFormData({ ...editFormData, description: e.target.value })
                                     }
+                                    disabled={loading}
                                 />
                             </Form.Group>
-                            <Button variant="primary" type="submit">
-                                Lưu thay đổi
+                            <Button variant="primary" type="submit" disabled={loading}>
+                                {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
                             </Button>
                         </Form>
                     )}

@@ -17,7 +17,8 @@ const eventTypeSchema = new mongoose.Schema({
     updatedAt: {
         type: Date, default: Date.now,
     },
-});
+}
+);
 
 eventTypeSchema.pre('save', function (next) {
     this.updatedAt = Date.now();

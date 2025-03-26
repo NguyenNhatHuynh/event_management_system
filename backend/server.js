@@ -1,3 +1,4 @@
+// backend/server.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -7,13 +8,16 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const { auth, adminOnly } = require('./middleware/auth');
 const path = require('path');
-const Setting = require('./models/Setting'); // Thêm import model Setting
+const Setting = require('./models/Setting');
 
 // Load biến môi trường từ file .env
 dotenv.config();
 
 // Khởi tạo ứng dụng Express
 const app = express();
+
+// Enable trust proxy
+app.set('trust proxy', 1); // Thêm dòng này để khắc phục lỗi express-rate-limit
 
 // Kết nối tới database
 connectDB().catch((error) => {
@@ -30,7 +34,7 @@ const initializeSettings = async () => {
                 siteName: 'Event Management System',
                 contactEmail: 'contact@example.com',
                 contactPhone: '0123 456 789',
-                logo: '', // Đường dẫn logo mặc định (có thể để trống)
+                logo: '',
             });
             await defaultSettings.save();
             console.log('Cài đặt mặc định đã được tạo!');
@@ -72,8 +76,8 @@ if (process.env.NODE_ENV === 'development') {
 
 // Giới hạn số lượng request
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 phút
-    max: process.env.NODE_ENV === 'development' ? 1000 : 100, // Tăng lên 1000 trong môi trường phát triển
+    windowMs: 15 * 60 * 1000,
+    max: process.env.NODE_ENV === 'development' ? 1000 : 100,
     message: 'Quá nhiều yêu cầu từ IP này, vui lòng thử lại sau 15 phút!',
 });
 app.use((req, res, next) => {
@@ -112,7 +116,7 @@ app.use('/api/blogs', auth, adminOnly, blogRoutes);
 app.use('/api/contacts', auth, adminOnly, contactRoutes);
 app.use('/api/settings', auth, adminOnly, settingRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes); // Đã có middleware auth trong userRoutes
+app.use('/api/users', userRoutes);
 app.use('/api/dashboard', auth, adminOnly, dashboardRoutes);
 
 // Route cơ bản để kiểm tra API
@@ -135,7 +139,7 @@ app.use((err, req, res, next) => {
 
 // Khởi động server và khởi tạo cài đặt
 connectDB().then(() => {
-    initializeSettings(); // Gọi hàm khởi tạo cài đặt
+    initializeSettings();
 }).catch((error) => {
     console.error('Failed to connect to MongoDB:', error);
     process.exit(1);
@@ -145,84 +149,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ============================ DÙNG ĐỂ TẠO TÀI KHOẢN ADMIN ==================================
-
-// const User = require('./models/User');
-// const bcrypt = require('bcryptjs');
-
-// const initializeAdmin = async () => {
-//     try {
-//         const adminExists = await User.findOne({ role: 'admin' });
-//         if (!adminExists) {
-//             const hashedPassword = await bcrypt.hash('admin123', 10);
-//             const admin = new User({
-//                 username: 'admin',
-//                 email: 'admin@example.com',
-//                 password: hashedPassword,
-//                 role: 'admin',
-//                 fullName: 'Admin User',
-//                 phone: '0987543211',
-//                 address: '456 Đường Láng, Hà Nội',
-//             });
-//             await admin.save();
-//             console.log('Tài khoản admin đã được tạo!');
-//         }
-//     } catch (error) {
-//         console.error('Lỗi khi tạo tài khoản admin:', error);
-//     }
-// };
-
-// // Gọi hàm khởi tạo admin sau khi kết nối database
-// connectDB().then(() => {
-//     initializeAdmin();
-// }).catch((error) => {
-//     console.error('Failed to connect to MongoDB:', error);
-//     process.exit(1);
-// });

@@ -7,10 +7,11 @@ const EventType = require('../models/EventType');
 router.get('/public', async (req, res) => {
     try {
         const eventTypes = await EventType.find().lean();
-        res.json(eventTypes || []); // Đảm bảo luôn trả về mảng
+        console.log('Event types fetched from DB:', eventTypes); // Thêm log
+        res.json(eventTypes || []);
     } catch (error) {
         console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
-        res.status(500).json([]); // Trả về mảng rỗng nếu có lỗi
+        res.status(500).json([]);
     }
 });
 

@@ -1,24 +1,24 @@
 // frontend/src/pages/client/Portfolio.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Pagination } from 'react-bootstrap';
-import { Link, useLocation, useNavigate } from 'react-router-dom'; // Thêm useNavigate
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../../assets/styles/Client.css';
 
 function Portfolio() {
-    const [events, setEvents] = useState([]); // Khởi tạo events là mảng rỗng
+    const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1); // State để theo dõi trang hiện tại
-    const [totalPages, setTotalPages] = useState(1); // Tổng số trang
-    const [totalEvents, setTotalEvents] = useState(0); // Tổng số sự kiện
-    const limit = 6; // Số lượng sự kiện trên mỗi trang
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalEvents, setTotalEvents] = useState(0);
+    const limit = 6;
     const location = useLocation();
-    const navigate = useNavigate(); // Thêm navigate để điều hướng
+    const navigate = useNavigate();
 
     const queryParams = new URLSearchParams(location.search);
     const typeCode = queryParams.get('type');
 
-    const fetchEvents = async (page = 1, typeCodeParam = typeCode) => {
+    const fetchEvents = useCallback(async (page = 1, typeCodeParam = typeCode) => {
         setLoading(true);
         try {
             let url = `http://localhost:5000/api/events/public?page=${page}&limit=${limit}`;
@@ -29,7 +29,6 @@ function Portfolio() {
             const response = await axios.get(url);
             console.log('Public events data:', response.data);
 
-            // Kiểm tra dữ liệu trả về từ API
             const eventsData = Array.isArray(response.data.events) ? response.data.events : [];
             setEvents(eventsData);
             setCurrentPage(response.data.currentPage || 1);
@@ -37,32 +36,28 @@ function Portfolio() {
             setTotalEvents(response.data.totalEvents || 0);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sự kiện:', error);
-            // Nếu có lỗi, đặt events về mảng rỗng
             setEvents([]);
             setTotalPages(1);
             setTotalEvents(0);
         } finally {
             setLoading(false);
         }
-    };
+    }, [typeCode]);
 
     useEffect(() => {
         fetchEvents(currentPage, typeCode);
-    }, [typeCode, currentPage]); // Gọi lại fetchEvents khi typeCode hoặc currentPage thay đổi
+    }, [fetchEvents, currentPage, typeCode]);
 
-    // Hàm xử lý khi nhấn "Xem tất cả loại sự kiện"
     const handleViewAllEvents = () => {
-        // Xóa query parameter typeCode và điều hướng về /portfolio
         navigate('/portfolio');
-        setCurrentPage(1); // Reset về trang 1
-        fetchEvents(1, null); // Gọi lại API mà không có typeCode
+        setCurrentPage(1);
+        fetchEvents(1, null);
     };
 
-    // Hàm chuyển trang
     const handlePageChange = (pageNumber) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
-            window.scrollTo(0, 0); // Cuộn lên đầu trang khi chuyển trang
+            window.scrollTo(0, 0);
         }
     };
 
@@ -143,7 +138,6 @@ function Portfolio() {
                         )}
                     </Row>
 
-                    {/* Phân trang */}
                     {totalEvents > 0 && (
                         <Row className="mt-4">
                             <Col className="d-flex justify-content-between align-items-center">

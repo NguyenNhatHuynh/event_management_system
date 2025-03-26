@@ -4,7 +4,7 @@ const EventType = require('../models/EventType');
 exports.getEventTypes = async (req, res) => {
     try {
         const eventTypes = await EventType.find();
-        res.json(eventTypes);
+        res.json({ eventTypes }); // Wrap the array in an object with "eventTypes" key
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -37,3 +37,5 @@ exports.deleteEventType = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
