@@ -48,10 +48,19 @@ exports.getPublicBlogs = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 6;
         const skip = (page - 1) * limit;
+        const search = req.query.search || ''; // Lấy tham số tìm kiếm
 
-        const totalBlogs = await Blog.countDocuments({ status: 'approved' });
+        // Tạo query với tìm kiếm theo tiêu đề
+        const query = {
+            status: 'approved',
+            ...(search && {
+                title: { $regex: search, $options: 'i' } // Tìm kiếm không phân biệt hoa thường
+            })
+        };
 
-        const blogs = await Blog.find({ status: 'approved' })
+        const totalBlogs = await Blog.countDocuments(query);
+
+        const blogs = await Blog.find(query)
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 });
