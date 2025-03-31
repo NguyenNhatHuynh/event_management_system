@@ -8,7 +8,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Cấu hình multer để upload hình ảnh
+// Cấu hình multer (giữ nguyên)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
@@ -33,10 +33,10 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-// Route công khai: Lấy danh sách sự kiện (chỉ hiển thị sự kiện "Đã phê duyệt") với phân trang
+// Route công khai: Lấy danh sách sự kiện với tìm kiếm
 publicRouter.get('/', async (req, res) => {
     try {
-        const { eventType, typeCode, page = 1, limit = 6 } = req.query; // Mặc định page=1, limit=6
+        const { eventType, typeCode, page = 1, limit = 6, search } = req.query;
         const query = { status: 'Đã phê duyệt' };
 
         if (eventType) {
@@ -44,7 +44,6 @@ publicRouter.get('/', async (req, res) => {
         }
 
         if (typeCode) {
-            // Tìm eventType dựa trên typeCode
             const eventType = await EventType.findOne({ typeCode }).lean();
             if (!eventType) {
                 return res.status(404).json({ message: 'Loại sự kiện không tồn tại' });
@@ -52,15 +51,15 @@ publicRouter.get('/', async (req, res) => {
             query.eventType = eventType._id;
         }
 
-        // Tính toán phân trang
+        if (search) {
+            query.name = { $regex: search, $options: 'i' }; // Tìm kiếm không phân biệt hoa thường
+        }
+
         const pageNum = parseInt(page);
         const limitNum = parseInt(limit);
         const skip = (pageNum - 1) * limitNum;
 
-        // Lấy tổng số sự kiện
         const totalEvents = await Event.countDocuments(query);
-
-        // Lấy danh sách sự kiện với phân trang
         const events = await Event.find(query)
             .populate('eventType')
             .skip(skip)
@@ -68,7 +67,7 @@ publicRouter.get('/', async (req, res) => {
             .lean();
 
         res.json({
-            events: events || [], // Đảm bảo events luôn là mảng
+            events: events || [],
             currentPage: pageNum,
             totalPages: Math.ceil(totalEvents / limitNum),
             totalEvents,
@@ -76,7 +75,7 @@ publicRouter.get('/', async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: error.message,
-            events: [], // Trả về mảng rỗng nếu có lỗi
+            events: [],
             currentPage: 1,
             totalPages: 1,
             totalEvents: 0,
@@ -84,7 +83,8 @@ publicRouter.get('/', async (req, res) => {
     }
 });
 
-// Route công khai: Lấy chi tiết sự kiện theo ID (chỉ hiển thị sự kiện "Đã phê duyệt")
+
+// Giữ nguyên các route khác
 publicRouter.get('/:id', async (req, res) => {
     try {
         const event = await Event.findById(req.params.id).populate('eventType').lean();
@@ -97,6 +97,7 @@ publicRouter.get('/:id', async (req, res) => {
         res.status(500).json({ message: 'Lỗi server', error });
     }
 });
+
 
 // Route admin: Lấy danh sách tất cả sự kiện với phân trang
 router.get('/', async (req, res) => {
