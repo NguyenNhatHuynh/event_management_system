@@ -123,3 +123,5 @@ No additional environment variables are required for the admin dashboard.
 ## For Support, Contact:
 - 📧 **Email**: `<xoandev163.com>` (e.g., xoandev163@gmail.com)
 - 🌐 **GitHub**: `https://github.com/<NguyenNhatHuynh>`
+
+(Status Project : Done Version 1)
