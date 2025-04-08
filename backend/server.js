@@ -1,4 +1,3 @@
-// backend/server.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -17,13 +16,24 @@ dotenv.config();
 const app = express();
 
 // Enable trust proxy
-app.set('trust proxy', 1); // Thêm dòng này để khắc phục lỗi express-rate-limit
+app.set('trust proxy', 1);
 
 // Kết nối tới database
-connectDB().catch((error) => {
-    console.error('Failed to connect to MongoDB:', error);
-    process.exit(1);
-});
+const startServer = async () => {
+    try {
+        await connectDB();
+        // Khởi tạo cài đặt mặc định
+        await initializeSettings();
+        // Start the server
+        const PORT = process.env.PORT || 5000;
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to connect to MongoDB:', error.message);
+        process.exit(1);
+    }
+};
 
 // Khởi tạo cài đặt mặc định
 const initializeSettings = async () => {
@@ -44,24 +54,36 @@ const initializeSettings = async () => {
     }
 };
 
-// Middleware CORS
+// Middleware CORS cho các API routes
 const corsOptions = {
     origin: process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'cache-control'],
     optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 
 // Middleware khác
 app.use(express.json());
-app.use(helmet());
+// Temporarily disable helmet to rule out interference with CORS headers
+// app.use(helmet());
 
 // Phục vụ file tĩnh (hình ảnh trong thư mục uploads) với CORS
 app.use('/uploads', (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000');
-    res.header('Access-Control-Allow-Methods', 'GET');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    console.log(`Accessing /uploads route: ${req.method} ${req.url}`);
+    // Set CORS headers explicitly
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+
+    // Handle preflight OPTIONS requests
+    if (req.method === 'OPTIONS') {
+        console.log('Handling OPTIONS request for /uploads');
+        return res.status(200).end();
+    }
+
+    // Log the headers being sent
+    console.log('Response headers for /uploads:', res.getHeaders());
     next();
 }, express.static(path.join(__dirname, 'uploads')));
 
@@ -137,15 +159,5 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Khởi động server và khởi tạo cài đặt
-connectDB().then(() => {
-    initializeSettings();
-}).catch((error) => {
-    console.error('Failed to connect to MongoDB:', error);
-    process.exit(1);
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Start the server
+startServer();

@@ -1,4 +1,3 @@
-// frontend/src/pages/admin/AdminBlogs.js
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Table, Button, Pagination, OverlayTrigger, Tooltip, Badge } from 'react-bootstrap';
 import axios from 'axios';
@@ -13,15 +12,19 @@ function AdminBlogs() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalBlogs, setTotalBlogs] = useState(0);
-    const limit = 5; // Số bài viết trên mỗi trang
+    const limit = 5;
     const navigate = useNavigate();
 
     const fetchBlogs = async (page = 1) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`/api/blogs?page=${page}&limit=${limit}`, {
+            if (!token) {
+                throw new Error('Vui lòng đăng nhập để tiếp tục!');
+            }
+            const response = await axios.get(`http://localhost:5000/api/blogs?page=${page}&limit=${limit}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            console.log('Admin Blogs API Response:', response.data); // Debug: Log the API response
             setBlogs(response.data.blogs || []);
             setCurrentPage(response.data.currentPage || 1);
             setTotalPages(response.data.totalPages || 1);
@@ -42,12 +45,11 @@ function AdminBlogs() {
         if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`/api/blogs/${id}`, {
+                await axios.delete(`http://localhost:5000/api/blogs/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setBlogs(blogs.filter((blog) => blog._id !== id));
                 toast.success('Xóa bài viết thành công!');
-                fetchBlogs(currentPage); // Làm mới danh sách sau khi xóa
+                fetchBlogs(currentPage); // Refresh the list after deletion
             } catch (error) {
                 toast.error('Lỗi khi xóa bài viết: ' + (error.response?.data?.message || error.message));
             }
@@ -57,12 +59,11 @@ function AdminBlogs() {
     const handleToggleApproval = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.patch(`/api/blogs/toggle-approval/${id}`, {}, {
+            const response = await axios.patch(`http://localhost:5000/api/blogs/toggle-approval/${id}`, {}, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setBlogs(blogs.map((blog) => (blog._id === id ? response.data : blog)));
             toast.success('Cập nhật trạng thái phê duyệt thành công!');
-            fetchBlogs(currentPage); // Làm mới danh sách sau khi cập nhật
+            fetchBlogs(currentPage); // Refresh the list after toggling approval
         } catch (error) {
             toast.error('Lỗi khi cập nhật trạng thái: ' + (error.response?.data?.message || error.message));
         }
@@ -71,7 +72,7 @@ function AdminBlogs() {
     const handlePageChange = (pageNumber) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
-            window.scrollTo(0, 0); // Cuộn lên đầu trang khi chuyển trang
+            window.scrollTo(0, 0);
         }
     };
 

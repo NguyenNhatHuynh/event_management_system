@@ -1,4 +1,3 @@
-// backend/controllers/blogController.js
 const Blog = require('../models/Blog');
 const fs = require('fs');
 const path = require('path');
@@ -6,26 +5,23 @@ const path = require('path');
 // Lấy tất cả blog (cho admin) với phân trang
 exports.getBlogs = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; // Trang hiện tại, mặc định là 1
-        const limit = parseInt(req.query.limit) || 5; // Số lượng bài viết trên mỗi trang, mặc định là 5
-        const skip = (page - 1) * limit; // Số bài viết cần bỏ qua
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const skip = (page - 1) * limit;
 
-        // Lấy tổng số bài viết
         const totalBlogs = await Blog.countDocuments();
 
-        // Lấy danh sách bài viết với phân trang
         const blogs = await Blog.find()
             .skip(skip)
             .limit(limit)
-            .sort({ createdAt: -1 }); // Sắp xếp theo ngày tạo, mới nhất trước
+            .sort({ createdAt: -1 });
 
-        // Kiểm tra xem hình ảnh có tồn tại không
         const blogsWithImageCheck = blogs.map(blog => {
             if (blog.image) {
                 const imagePath = path.join(__dirname, '..', blog.image);
                 if (!fs.existsSync(imagePath)) {
                     console.log(`Hình ảnh không tồn tại: ${blog.image}`);
-                    blog.image = null; // Đặt image thành null nếu file không tồn tại
+                    blog.image = null;
                 }
             }
             return blog;
@@ -48,13 +44,12 @@ exports.getPublicBlogs = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 6;
         const skip = (page - 1) * limit;
-        const search = req.query.search || ''; // Lấy tham số tìm kiếm
+        const search = req.query.search || '';
 
-        // Tạo query với tìm kiếm theo tiêu đề
         const query = {
             status: 'approved',
             ...(search && {
-                title: { $regex: search, $options: 'i' } // Tìm kiếm không phân biệt hoa thường
+                title: { $regex: search, $options: 'i' }
             })
         };
 
@@ -139,25 +134,37 @@ exports.createBlog = async (req, res) => {
 exports.updateBlog = async (req, res) => {
     try {
         const { title, content, category, status } = req.body;
-        const image = req.file ? `/uploads/${req.file.filename}` : req.body.image;
+        let image = req.body.image; // Keep the existing image by default
 
-        if (image && req.file) {
+        // If a new image is uploaded, update the image path and delete the old image
+        if (req.file) {
+            image = `/uploads/${req.file.filename}`;
             const imagePath = path.join(__dirname, '..', image);
             if (!fs.existsSync(imagePath)) {
                 return res.status(500).json({ message: 'Hình ảnh không tồn tại trên server sau khi upload' });
             }
+
+            // Delete the old image if it exists
+            const blog = await Blog.findById(req.params.id);
+            if (blog.image) {
+                const oldImagePath = path.join(__dirname, '..', blog.image);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                    console.log(`Deleted old image: ${blog.image}`);
+                }
+            }
         }
 
-        const blog = await Blog.findByIdAndUpdate(
+        const updatedBlog = await Blog.findByIdAndUpdate(
             req.params.id,
             { title, content, category, status, image },
             { new: true }
         );
 
-        if (!blog) {
+        if (!updatedBlog) {
             return res.status(404).json({ message: 'Bài viết không tồn tại' });
         }
-        res.json(blog);
+        res.json(updatedBlog);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }

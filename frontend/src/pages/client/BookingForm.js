@@ -1,7 +1,8 @@
-// frontend/src/pages/client/BookingForm.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Form, Button } from 'react-bootstrap';
+import { Container, Form, Button, Spinner } from 'react-bootstrap';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const BookingForm = () => {
     const [formData, setFormData] = useState({
@@ -10,18 +11,23 @@ const BookingForm = () => {
         eventType: '',
         eventDate: '',
     });
-    const [eventTypes, setEventTypes] = useState([]); // Khởi tạo mặc định là mảng rỗng
+    const [eventTypes, setEventTypes] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // Lấy danh sách loại sự kiện
     useEffect(() => {
         const fetchEventTypes = async () => {
+            setLoading(true);
             try {
-                const response = await axios.get('/api/event-types/public'); // Sử dụng proxy
-                // Đảm bảo response.data là mảng, nếu không thì gán mảng rỗng
-                setEventTypes(Array.isArray(response.data) ? response.data : []);
+                const response = await axios.get('/api/event-types/public');
+                // Lấy eventTypes từ response.data.eventTypes
+                setEventTypes(Array.isArray(response.data.eventTypes) ? response.data.eventTypes : []);
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách loại sự kiện:', error);
-                setEventTypes([]); // Gán mảng rỗng nếu có lỗi
+                setEventTypes([]);
+                toast.error('Không thể tải danh sách loại sự kiện');
+            } finally {
+                setLoading(false);
             }
         };
         fetchEventTypes();
@@ -33,9 +39,10 @@ const BookingForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
-            await axios.post('/api/bookings/public', formData); // Sử dụng proxy
-            alert('Yêu cầu đặt lịch đã được gửi thành công!');
+            await axios.post('/api/bookings/public', formData);
+            toast.success('Yêu cầu đặt lịch đã được gửi thành công!');
             setFormData({
                 customerName: '',
                 email: '',
@@ -44,12 +51,15 @@ const BookingForm = () => {
             });
         } catch (error) {
             console.error('Lỗi khi gửi yêu cầu đặt lịch:', error);
-            alert('Lỗi khi gửi yêu cầu: ' + (error.response?.data?.message || error.message));
+            toast.error(error.response?.data?.message || 'Lỗi khi gửi yêu cầu đặt lịch');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <Container className="my-5">
+            <ToastContainer />
             <h2 className="text-center mb-4">Đặt lịch sự kiện</h2>
             <Form onSubmit={handleSubmit} className="border p-4 rounded shadow-sm">
                 <Form.Group className="mb-3" controlId="customerName">
@@ -61,6 +71,7 @@ const BookingForm = () => {
                         onChange={handleChange}
                         required
                         placeholder="Nhập tên của bạn"
+                        disabled={loading}
                     />
                 </Form.Group>
 
@@ -73,6 +84,7 @@ const BookingForm = () => {
                         onChange={handleChange}
                         required
                         placeholder="Nhập email của bạn"
+                        disabled={loading}
                     />
                 </Form.Group>
 
@@ -83,6 +95,7 @@ const BookingForm = () => {
                         value={formData.eventType}
                         onChange={handleChange}
                         required
+                        disabled={loading || eventTypes.length === 0}
                     >
                         <option value="">Chọn loại sự kiện</option>
                         {eventTypes.map((type) => (
@@ -91,6 +104,11 @@ const BookingForm = () => {
                             </option>
                         ))}
                     </Form.Select>
+                    {eventTypes.length === 0 && !loading && (
+                        <Form.Text className="text-danger">
+                            Không có loại sự kiện nào khả dụng
+                        </Form.Text>
+                    )}
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="eventDate">
@@ -101,11 +119,29 @@ const BookingForm = () => {
                         value={formData.eventDate}
                         onChange={handleChange}
                         required
+                        disabled={loading}
                     />
                 </Form.Group>
 
-                <Button variant="primary" type="submit" className="w-100">
-                    Gửi yêu cầu
+                <Button
+                    variant="primary"
+                    type="submit"
+                    className="w-100"
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <>
+                            <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                            /> Đang gửi...
+                        </>
+                    ) : (
+                        'Gửi yêu cầu'
+                    )}
                 </Button>
             </Form>
         </Container>

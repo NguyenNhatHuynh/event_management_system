@@ -306,13 +306,13 @@ function CustomerManagement() {
                                             />
                                             {[...Array(totalPages).keys()].map((page) => (
 
-                                            <Pagination.Item
-                                                key={page + 1}
-                                                active={page + 1 === currentPage}
-                                                onClick={() => handlePageChange(page + 1)}
-                                            >
-                                                {page + 1}
-                                            </Pagination.Item>
+                                                <Pagination.Item
+                                                    key={page + 1}
+                                                    active={page + 1 === currentPage}
+                                                    onClick={() => handlePageChange(page + 1)}
+                                                >
+                                                    {page + 1}
+                                                </Pagination.Item>
                                             ))}
                                             <Pagination.Next
                                                 onClick={() => handlePageChange(currentPage + 1)}

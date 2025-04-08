@@ -16,7 +16,7 @@ import HeroEvent2 from '../../assets/images/hero-event-2.png';
 
 
 
-import RoadShow from '../../assets/images/road-show.jpg';
+import EventHome from '../../assets/images/Event_Home.png';
 import ProductLaunch from '../../assets/images/product-launch.jpg';
 import Inauguration from '../../assets/images/inauguration.jpeg';
 import Groundbreaking from '../../assets/images/groundbreaking.jpg';
@@ -72,7 +72,7 @@ function Home() {
                     <Row>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src={RoadShow} />
+                                <Card.Img variant="top" src={ProductLaunch} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC ROAD SHOW</Card.Title>
                                     <Card.Text>Quảng bá thương hiệu hiệu quả với các chiến dịch road show sáng tạo.</Card.Text>
@@ -81,7 +81,7 @@ function Home() {
                         </Col>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src={EventPerformance} />
+                                <Card.Img variant="top" src={Inauguration} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC BIỂU DIỄN NGHỆ THUẬT</Card.Title>
                                     <Card.Text>Mang đến những màn trình diễn nghệ thuật ấn tượng và độc đáo.</Card.Text>
@@ -90,7 +90,7 @@ function Home() {
                         </Col>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src={Inauguration} />
+                                <Card.Img variant="top" src={Groundbreaking} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC KHAI TRƯƠNG - KHÁNH THÀNH</Card.Title>
                                     <Card.Text>Tạo dấu ấn cho sự kiện khai trương hoặc khánh thành của bạn.</Card.Text>
@@ -99,7 +99,7 @@ function Home() {
                         </Col>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src={ProductLaunch} />
+                                <Card.Img variant="top" src={EventPerformance} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC LỄ RA MẮT SẢN PHẨM MỚI</Card.Title>
                                     <Card.Text>Giới thiệu sản phẩm mới với sự kiện hoành tráng và chuyên nghiệp.</Card.Text>
@@ -108,7 +108,7 @@ function Home() {
                         </Col>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src={Groundbreaking} />
+                                <Card.Img variant="top" src={Conference} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC KHỞI CÔNG - ĐỘNG THỔ</Card.Title>
                                     <Card.Text>Đánh dấu khởi đầu dự án với sự kiện ý nghĩa và trang trọng.</Card.Text>
@@ -117,7 +117,7 @@ function Home() {
                         </Col>
                         <Col md={4} className="mb-4">
                             <Card className="service-card">
-                                <Card.Img variant="top" src={Conference} />
+                                <Card.Img variant="top" src={EventHome} />
                                 <Card.Body>
                                     <Card.Title>TỔ CHỨC HỘI NGHỊ - HỘI THẢO</Card.Title>
                                     <Card.Text>Tổ chức hội nghị chuyên nghiệp, đảm bảo thành công cho sự kiện.</Card.Text>
@@ -153,7 +153,7 @@ function Home() {
                                 <Row className="justify-content-center">
                                     <Col md={8} className="text-center">
                                         <p>
-                                            Ms Nguyễn Phương Nga Phó Giám đốc Công ty TNHH NISSEI Việt Nam, Tới đây có dịp hợp tác cùng với VTA Event, thay thưa sự hài lòng vì phong cách làm việc chuyên nghiệp, và có trách nhiệm với công việc. Nêu có dịp sẽ hợp tác lâu dài...
+                                            Ms Nguyễn Phương Nga Phó Giám đốc Công ty TNHH XDev Việt Nam, Tới đây có dịp hợp tác cùng với EventPro, thay thưa sự hài lòng vì phong cách làm việc chuyên nghiệp, và có trách nhiệm với công việc. Nêu có dịp sẽ hợp tác lâu dài...
                                         </p>
                                         <h5>Mark Jance / Facebook</h5>
                                         <div className="stars">
@@ -225,13 +225,13 @@ function Home() {
                         <Col md={3} className="mb-4">
                             <h5>TRỤ SỞ HÀ NỘI</h5>
                             <p>
-                                Địa chỉ: Đ. Nguyễn Khuyến, Khu Phố 5, Biên Hòa, Đồng Nai, Việt Nam
+                                Địa chỉ: 28 Điện Biên Phủ,Điện Biên, Ba Đình, Hà Nội, Việt Nam
                             </p>
                         </Col>
                         <Col md={3} className="mb-4">
                             <h5>BẢN ĐỒ</h5>
 
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4013.6192971240957!2d106.8687347!3d10.984400599999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174ddb237f9dd59%3A0x3ff1538c511f05d7!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBDw7RuZyBOZ2jhu4cgxJDhu5NuZyBOYWk!5e1!3m2!1svi!2s!4v1742874972778!5m2!1svi!2s"
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d95033.0806625854!2d106.74852675295902!3d10.819735168822618!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174d85e042bf04b%3A0xbb26baec1664394d!2zVGjhu6cgxJDhu6ljLCBI4buTIENow60gTWluaCwgVmnhu4d0IE5hbQ!5e1!3m2!1svi!2s!4v1743469233724!5m2!1svi!2s"
                                 width="100%"
                                 height="200"
                                 style={{ border: 0 }}
